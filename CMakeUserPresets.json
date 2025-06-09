@@ -1,0 +1,15 @@
+{
+    "version": 10,
+    "configurePresets": [
+        {
+            "name":"win-debug-x64",
+            "hidden": false,
+            "inherits":"debug-x64",
+            "environment": {
+                "VCPKG_ROOT":"F:/dev/git-ct/vcpkg",
+                "C_COMPILER_DIR": "F:/dev/mingw/mingw64/bin",
+                "CXX_COMPILER_DIR": "F:/dev/mingw/mingw64/bin"
+            }
+        }
+    ]
+}
