@@ -1,7 +1,5 @@
 #pragma once
 
 namespace vodka {
-    class PhysicalDevice {
-        
-    }
-}
+class PhysicalDevice {};
+}  // namespace vodka

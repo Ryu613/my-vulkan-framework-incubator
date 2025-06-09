@@ -3,7 +3,5 @@
 #include <vulkan/vulkan.hpp>
 
 namespace vodka {
-    class Instance {
-        
-    }
-}
+class Instance {};
+}  // namespace vodka

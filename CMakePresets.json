@@ -13,20 +13,21 @@
             "binaryDir": "${sourceDir}/build/${presetName}",
             "installDir": "${sourceDir}/build/install/${presetName}",
             "cacheVariables": {
-                "CMAKE_C_COMPILER":"$env{C_COMPILER_DIR}/gcc.exe",
-                "CMAKE_CXX_COMPILER":"$env{CXX_COMPILER_DIR}/g++.exe",
-                "CMAKE_TOOLCHAIN_FILE":"$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+                "CMAKE_C_COMPILER": "$env{C_COMPILER_DIR}/gcc.exe",
+                "CMAKE_CXX_COMPILER": "$env{CXX_COMPILER_DIR}/g++.exe",
+                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
             }
-        },{
+        },
+        {
             "name": "debug-x64",
             "hidden": true,
-            "inherits":"default",
-            "architecture":{
+            "inherits": "default",
+            "architecture": {
                 "value": "x64",
                 "strategy": "external"
             },
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE":"Debug"
+                "CMAKE_BUILD_TYPE": "Debug"
             }
         }
     ]
