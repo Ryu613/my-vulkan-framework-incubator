@@ -11,6 +11,3 @@ target_include_directories(vodka PUBLIC ${Vulkan_INCLUDE_DIRS} include)
 add_executable(main test/main.cpp)
 target_link_libraries(main PRIVATE ${Vulkan_LIBRARIES} glfw glm::glm-header-only)
 target_include_directories(main PRIVATE ${Vulkan_INCLUDE_DIRS} include)
-
-add_executable(test_vodka test/test_vodka.cpp)
-target_link_libraries(test_vodka PRIVATE vodka)
