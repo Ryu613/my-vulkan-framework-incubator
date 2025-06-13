@@ -1,9 +1,5 @@
 #pragma once
 
-#include <memory>
-#include <string>
-#include <vector>
-
 #include "vk1/common/common.hpp"
 #include "vk1/core/instance.hpp"
 #include "vk1/core/logical_device.hpp"
@@ -14,9 +10,10 @@ struct ContextConfig {
   std::string app_name;
   void* window = nullptr;
   bool is_debug = false;
-  std::vector<const char*> required_layers;
-  std::vector<const char*> required_instance_extensions;
-  std::vector<const char*> required_device_extensions;
+  OptionalLayers required_layers;
+  OptionalExtensions required_instance_extensions;
+  OptionalExtensions required_device_extensions;
+  uint32_t vulkan_api_version = VK_API_VERSION_1_0;
 };
 
 class Context final {
@@ -30,14 +27,17 @@ class Context final {
  private:
   ContextConfig config_;
   std::unique_ptr<Instance> instance_;
-  std::unique_ptr<LogicalDevice> logical_device_;
   VkSurfaceKHR surface_;
+  std::optional<uint32_t> graphics_queue_family_index_;
+  std::optional<uint32_t> present_queue_family_index_;
+  std::unique_ptr<LogicalDevice> logical_device_;
 
+ private:
   void initVulkan();
   void createInstance();
   void createSurface();
   void pickPhysicalDevice();
-  void createLogicalDevice();
+  void createLogicalDevice(const PhysicalDevice& physical_device);
   void createSwapchain();
   void createImageViews();
   void createRenderPass();
@@ -47,7 +47,7 @@ class Context final {
   void createCommandBuffers();
   void createSyncObjects();
 
-  bool checkDeviceExtensionSupport();
-  void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+  void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& create_info);
+  void populateQueueFamilyIndex(const PhysicalDevice& physical_device);
 };
 }  // namespace vk1

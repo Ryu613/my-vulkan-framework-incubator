@@ -1,10 +1,15 @@
 #pragma once
 
 #include <cstring>
+#include <functional>
 #include <iostream>
 #include <memory>
+#include <optional>
+#include <set>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
+#include <utility>
 #include <vector>
 
 #ifdef _WIN32
@@ -32,3 +37,11 @@
   CLASS_NAME& operator=(const CLASS_NAME&) = delete; \
   CLASS_NAME(CLASS_NAME&&) noexcept = delete;        \
   CLASS_NAME& operator=(CLASS_NAME&&) noexcept = delete;
+
+namespace vk1 {
+using OptionalExtensions = std::unordered_map<const char*, bool>;
+using OptionalLayers = OptionalExtensions;
+
+const OptionalLayers DEFAULT_DEBUG_LAYERS = {{"VK_LAYER_KHRONOS_validation", true}};
+const OptionalExtensions DEFAULT_DEVICE_EXTENSIONS = {{VK_KHR_SWAPCHAIN_EXTENSION_NAME, true}};
+}  // namespace vk1
