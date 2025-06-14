@@ -33,8 +33,8 @@ Instance::Instance(std::string name,
                    OptionalLayers& required_layers,
                    OptionalExtensions& required_extensions,
                    bool is_debug)
-    : name_(name) {
-    if (volkInitialize()) {
+    : name_(name), is_debug_(is_debug) {
+  if (volkInitialize()) {
     throw std::runtime_error("failed to initialize volk!");
   }
   if (!checkLayerSupport(required_layers, is_debug) ||
@@ -60,7 +60,7 @@ Instance::Instance(std::string name,
   };
 
   VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-  if (is_debug) {
+  if (is_debug_) {
     populateDebugMessengerCreateInfo(debugCreateInfo);
     createInfo.pNext = &debugCreateInfo;
   } else {
@@ -69,7 +69,7 @@ Instance::Instance(std::string name,
   if (vkCreateInstance(&createInfo, nullptr, &vk_instance_) != VK_SUCCESS) {
     throw std::runtime_error("failed to create instance!");
   }
-  if (is_debug) {
+  if (is_debug_) {
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo2;
     populateDebugMessengerCreateInfo(debugCreateInfo2);
     if (createDebugutilsMessengerExt(vk_instance_, &debugCreateInfo2, nullptr, &debug_utils_messenger_) !=
@@ -80,7 +80,12 @@ Instance::Instance(std::string name,
   volkLoadInstance(vk_instance_);
   getAllPhysicalDevices();
 }
-Instance::~Instance() {}
+Instance::~Instance() {
+  if (is_debug_) {
+    vkDestroyDebugUtilsMessengerEXT(vk_instance_, debug_utils_messenger_, nullptr);
+  }
+  vkDestroyInstance(vk_instance_, nullptr);
+}
 
 bool Instance::checkLayerSupport(OptionalLayers& required_layers, bool is_debug) {
   if (required_layers.empty()) {

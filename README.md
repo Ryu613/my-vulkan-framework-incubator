@@ -5,8 +5,9 @@ vulkan startup/template project for learning purpose
 ## building requirement
 
 1. cmake 4.0+
-1. vcpkg
-1. Vulkan SDK
+2. vcpkg
+3. Vulkan SDK
+4. C++20 compiler
 
 ### optional requirement
 
@@ -17,7 +18,7 @@ vulkan startup/template project for learning purpose
 
 now this project is for Windows
 
-alter `CMakeUserPrests.json` to your directory of `c/c++ compilers` and `vcpkg toolchain`, then
+alter `CMakeUserPrests.json` to your directory of `c++ compilers` and `vcpkg toolchain`, then
 
 ```cmd
 // project's root directory

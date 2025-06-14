@@ -32,6 +32,7 @@ class Instance {
 
  private:
   std::string name_;
+  bool is_debug_ = false;
   VkInstance vk_instance_ = VK_NULL_HANDLE;
   std::vector<const char*> enabled_extensions_;
   std::vector<const char*> enabled_layers_;

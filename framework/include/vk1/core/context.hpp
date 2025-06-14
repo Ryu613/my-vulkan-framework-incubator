@@ -1,11 +1,12 @@
 #pragma once
-
 #include "vk1/common/common.hpp"
 #include "vk1/core/instance.hpp"
 #include "vk1/core/logical_device.hpp"
 #include "vk1/core/physical_device.hpp"
+#include "vma/vk_mem_alloc.h"
 
 namespace vk1 {
+class RenderContext;
 struct ContextConfig {
   std::string app_name;
   void* window = nullptr;
@@ -24,18 +25,23 @@ class Context final {
 
   ~Context();
 
+ public:
+  void createRenderContext();
+
  private:
   ContextConfig config_;
   std::unique_ptr<Instance> instance_;
-  VkSurfaceKHR surface_;
   std::unique_ptr<LogicalDevice> logical_device_;
+  std::unique_ptr<RenderContext> render_context_;
+  VkSurfaceKHR surface_;
+  VmaAllocator allocator_ = nullptr;
 
  private:
   void initVulkan();
-  void createInstance();
+
   void createSurface();
-  void pickPhysicalDevice();
-  void createLogicalDevice(const PhysicalDevice& physical_device);
+
+  void createMemoryAllocator();
   void createSwapchain();
   void createImageViews();
   void createRenderPass();
@@ -44,7 +50,5 @@ class Context final {
   void createCommandPool();
   void createCommandBuffers();
   void createSyncObjects();
-
-  void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& create_info);
 };
 }  // namespace vk1

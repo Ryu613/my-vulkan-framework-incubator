@@ -1,13 +1,21 @@
 #define VOLK_IMPLEMENTATION
+#define VMA_IMPLEMENTATION
 #include "vk1/core/context.hpp"
 
+#include "vk1/rendering/render_context.hpp"
 namespace vk1 {
 
 Context::Context(const ContextConfig& config) : config_(config) {
   initVulkan();
 }
 
-Context::~Context() {}
+Context::~Context() {
+  vkDeviceWaitIdle(logical_device_->getVkDevice());
+  vmaDestroyAllocator(allocator_);
+  if (surface_ != VK_NULL_HANDLE) {
+    vkDestroySurfaceKHR(instance_->getVkInstance(), surface_, nullptr);
+  }
+}
 
 void Context::initVulkan() {
   // create instance
@@ -20,6 +28,7 @@ void Context::initVulkan() {
       instance_->chooseSuitablePhysicalDevice(surface_, config_.required_device_extensions);
   // create logical device
   logical_device_ = std::make_unique<LogicalDevice>(suitablePhysicalDevice, surface_);
+  createMemoryAllocator();
   createSwapchain();
   createImageViews();
   createRenderPass();
@@ -29,8 +38,6 @@ void Context::initVulkan() {
   createCommandBuffers();
   createSyncObjects();
 }
-
-void Context::createInstance() {}
 void Context::createSurface() {
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
   VkWin32SurfaceCreateInfoKHR createInfo{.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
@@ -42,6 +49,25 @@ void Context::createSurface() {
 #else
   throw std::runtime_error("cannot create surface!");
 #endif
+}
+
+void Context::createMemoryAllocator() {
+  const VmaVulkanFunctions vulkanFunctions = {
+      .vkGetInstanceProcAddr = vkGetInstanceProcAddr,
+      .vkGetDeviceProcAddr = vkGetDeviceProcAddr,
+  };
+
+  const VmaAllocatorCreateInfo allocInfo = {
+      .physicalDevice = logical_device_->getPhysicalDevice().getVkPhysicalDevice(),
+      .device = logical_device_->getVkDevice(),
+      .pVulkanFunctions = &vulkanFunctions,
+      .instance = instance_->getVkInstance(),
+  };
+  vmaCreateAllocator(&allocInfo, &allocator_);
+}
+
+void Context::createRenderContext() {
+  render_context_ = std::make_unique<RenderContext>(*logical_device_);
 }
 void Context::createSwapchain() {}
 void Context::createImageViews() {}
