@@ -12,5 +12,5 @@ add_executable(main test/main.cpp)
 target_link_libraries(main PRIVATE ${Vulkan_LIBRARIES} glfw glm::glm-header-only)
 target_include_directories(main PRIVATE ${Vulkan_INCLUDE_DIRS} include)
 
-# add_executable(test_vk1 test/test_vk1.cpp)
-# target_link_libraries(test_vk1 PRIVATE vk1)
+add_executable(test_vk1 test/test_vk1.cpp)
+target_link_libraries(test_vk1 PRIVATE vk1)

@@ -28,8 +28,6 @@ class Context final {
   ContextConfig config_;
   std::unique_ptr<Instance> instance_;
   VkSurfaceKHR surface_;
-  std::optional<uint32_t> graphics_queue_family_index_;
-  std::optional<uint32_t> present_queue_family_index_;
   std::unique_ptr<LogicalDevice> logical_device_;
 
  private:
@@ -48,6 +46,5 @@ class Context final {
   void createSyncObjects();
 
   void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& create_info);
-  void populateQueueFamilyIndex(const PhysicalDevice& physical_device);
 };
 }  // namespace vk1

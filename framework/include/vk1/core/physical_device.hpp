@@ -11,6 +11,9 @@ class PhysicalDevice {
   explicit PhysicalDevice(const Instance& instance, VkPhysicalDevice vk_physical_device);
 
  public:
+  inline const Instance& getInstance() const {
+    return instance_;
+  }
   inline const VkPhysicalDevice getVkPhysicalDevice() const {
     return vk_physical_device_;
   }
@@ -30,6 +33,8 @@ class PhysicalDevice {
   }
 
   bool supportExtensions(const OptionalExtensions& required_extensions);
+
+  void createLogicalDevice(std::set<uint32_t> queue_family_indices, bool is_debug);
 
  private:
   const Instance& instance_;

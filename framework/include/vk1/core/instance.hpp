@@ -9,8 +9,8 @@ class Instance {
   NO_COPY_MOVE(Instance);
 
   explicit Instance(std::string name,
-                    const OptionalLayers& required_layers,
-                    const OptionalExtensions& required_instance_extensions,
+                    OptionalLayers& required_layers,
+                    OptionalExtensions& required_instance_extensions,
                     bool is_debug);
   ~Instance();
 
@@ -32,15 +32,15 @@ class Instance {
 
  private:
   std::string name_;
-  VkInstance vk_instance_;
+  VkInstance vk_instance_ = VK_NULL_HANDLE;
   std::vector<const char*> enabled_extensions_;
   std::vector<const char*> enabled_layers_;
-  VkDebugUtilsMessengerEXT debug_utils_messenger_;
+  VkDebugUtilsMessengerEXT debug_utils_messenger_ = VK_NULL_HANDLE;
   std::vector<std::unique_ptr<PhysicalDevice>> physical_devices_;
 
  private:
-  bool checkLayerSupport(const OptionalLayers& required_layers);
-  bool checkInstanceExtensionSupport(const OptionalExtensions& required_extensions);
+  bool checkLayerSupport(OptionalLayers& required_layers, bool is_debug);
+  bool checkInstanceExtensionSupport(OptionalExtensions& required_extensions, bool is_debug);
   void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& create_info);
   void getAllPhysicalDevices();
   int rateDeviceSuitability(const PhysicalDevice& device);

@@ -31,7 +31,7 @@ inline SupportInfoBundle isSupported(const std::vector<T>& available,
   SupportInfoBundle result;
   for (const auto& [name, optional] : required) {
     bool found = false;
-    for (const auto& each : availables) {
+    for (const auto& each : available) {
       if (strcmp(name, getNameFunc(each)) == 0) {
         result.enabled_names.push_back(name);
         found = true;

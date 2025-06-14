@@ -7,20 +7,38 @@
 
 namespace vk1 {
 namespace {
-static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                                                    VkDebugUtilsMessageTypeFlagsEXT messageType,
-                                                    const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-                                                    void* pUserData) {
+VkResult createDebugutilsMessengerExt(VkInstance instance,
+                                      const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+                                      const VkAllocationCallbacks* pAllocator,
+                                      VkDebugUtilsMessengerEXT* pDebugMessenger) {
+  auto func =
+      (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+  if (func != nullptr) {
+    return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
+  } else {
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+  }
+}
+VKAPI_ATTR VkBool32 VKAPI_CALL
+debugMessengerCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+                       VkDebugUtilsMessageTypeFlagsEXT messageType,
+                       const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+                       void* pUserData) {
   std::cerr << "validation layer: " << pCallbackData->pMessage << "\n";
   return VK_FALSE;
 }
 }  // namespace
+
 Instance::Instance(std::string name,
-                   const OptionalLayers& required_layers,
-                   const OptionalExtensions& required_extensions,
+                   OptionalLayers& required_layers,
+                   OptionalExtensions& required_extensions,
                    bool is_debug)
     : name_(name) {
-  if (!checkLayerSupport(required_layers) || !checkInstanceExtensionSupport(required_extensions)) {
+    if (volkInitialize()) {
+    throw std::runtime_error("failed to initialize volk!");
+  }
+  if (!checkLayerSupport(required_layers, is_debug) ||
+      !checkInstanceExtensionSupport(required_extensions, is_debug)) {
     throw std::runtime_error("layers or extensions are not all supported!");
   }
   VkApplicationInfo appInfo{
@@ -52,20 +70,24 @@ Instance::Instance(std::string name,
     throw std::runtime_error("failed to create instance!");
   }
   if (is_debug) {
-    VkDebugUtilsMessengerCreateInfoEXT createInfo;
-    populateDebugMessengerCreateInfo(createInfo);
-    if (vkCreateDebugUtilsMessengerEXT(vk_instance_, &createInfo, nullptr, &debug_utils_messenger_) !=
+    VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo2;
+    populateDebugMessengerCreateInfo(debugCreateInfo2);
+    if (createDebugutilsMessengerExt(vk_instance_, &debugCreateInfo2, nullptr, &debug_utils_messenger_) !=
         VK_SUCCESS) {
       throw std::runtime_error("failed to setup debug messenger!");
     }
   }
+  volkLoadInstance(vk_instance_);
   getAllPhysicalDevices();
 }
 Instance::~Instance() {}
 
-bool Instance::checkLayerSupport(const OptionalLayers& required_layers) {
+bool Instance::checkLayerSupport(OptionalLayers& required_layers, bool is_debug) {
   if (required_layers.empty()) {
-    return true;
+    if (!is_debug) {
+      return true;
+    }
+    required_layers.insert(DEFAULT_DEBUG_LAYERS.begin(), DEFAULT_DEBUG_LAYERS.end());
   }
   uint32_t layerCount;
   vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
@@ -80,9 +102,13 @@ bool Instance::checkLayerSupport(const OptionalLayers& required_layers) {
   return supported;
 }
 
-bool Instance::checkInstanceExtensionSupport(const OptionalExtensions& required_extensions) {
+bool Instance::checkInstanceExtensionSupport(OptionalExtensions& required_extensions, bool is_debug) {
   if (required_extensions.empty()) {
-    return true;
+    required_extensions.insert(DEFAULT_INSTANCE_EXTENSIONS.begin(), DEFAULT_INSTANCE_EXTENSIONS.end());
+    if (is_debug) {
+      required_extensions.insert(DEFAULT_DEBUG_INSTANCE_EXTENSIONS.begin(),
+                                 DEFAULT_DEBUG_INSTANCE_EXTENSIONS.end());
+    }
   }
   uint32_t extensionCount = 0;
   vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
@@ -96,8 +122,8 @@ bool Instance::checkInstanceExtensionSupport(const OptionalExtensions& required_
   return supported;
 }
 
-void Instance::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) {
-  createInfo = {
+void Instance::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& create_info) {
+  create_info = {
       .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
       .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
                          VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
@@ -105,7 +131,7 @@ void Instance::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoE
       .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
                      VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
                      VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
-      .pfnUserCallback = debugCallback,
+      .pfnUserCallback = debugMessengerCallback,
   };
 }
 
@@ -126,7 +152,7 @@ void Instance::getAllPhysicalDevices() {
 const PhysicalDevice& Instance::chooseSuitablePhysicalDevice(VkSurfaceKHR surface,
                                                              OptionalExtensions& required_device_extensions) {
   if (required_device_extensions.empty()) {
-    required_device_extensions.emplace(DEFAULT_DEVICE_EXTENSIONS.begin(), DEFAULT_DEVICE_EXTENSIONS.end());
+    required_device_extensions.insert(DEFAULT_DEVICE_EXTENSIONS.begin(), DEFAULT_DEVICE_EXTENSIONS.end());
   }
   std::multimap<int, PhysicalDevice*> candidates;
   for (const auto& device : physical_devices_) {

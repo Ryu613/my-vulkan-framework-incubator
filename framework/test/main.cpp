@@ -298,7 +298,6 @@ class HelloTriangleApplication {
       createInfo.pNext = &debugCreateInfo;
     } else {
       createInfo.enabledLayerCount = 0;
-
       createInfo.pNext = nullptr;
     }
     if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
