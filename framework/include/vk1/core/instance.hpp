@@ -1,10 +1,10 @@
 #pragma once
 
-#include "vk1/common/common.hpp"
+#include "vk1/core/common.hpp"
 
 namespace vk1 {
 class PhysicalDevice;
-class Instance {
+class Instance final {
  public:
   NO_COPY_MOVE(Instance);
 
@@ -44,6 +44,8 @@ class Instance {
   bool checkInstanceExtensionSupport(OptionalExtensions& required_extensions, bool is_debug);
   void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& create_info);
   void getAllPhysicalDevices();
+
+ private:
   int rateDeviceSuitability(const PhysicalDevice& device);
 };
 }  // namespace vk1

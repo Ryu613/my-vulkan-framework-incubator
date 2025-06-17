@@ -6,9 +6,9 @@
             "hidden": false,
             "inherits": "debug-x64",
             "environment": {
-                "VCPKG_ROOT": "F:/dev/git-ct/vcpkg",
-                "C_COMPILER_DIR": "F:/dev/mingw/mingw64/bin",
-                "CXX_COMPILER_DIR": "F:/dev/mingw/mingw64/bin"
+                "VCPKG_ROOT": "D:/git/vcpkg",
+                "C_COMPILER_DIR": "D:/dev/mingw64/bin",
+                "CXX_COMPILER_DIR": "D:/dev/mingw64/bin"
             }
         }
     ]

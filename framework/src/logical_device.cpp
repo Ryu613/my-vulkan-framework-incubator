@@ -38,7 +38,8 @@ LogicalDevice::LogicalDevice(const PhysicalDevice& physical_device, VkSurfaceKHR
 
 LogicalDevice::~LogicalDevice() {}
 
-QueueFamilyInfo findQueueFamilyIndex(const PhysicalDevice& physical_device, VkSurfaceKHR surface) {
+QueueFamilyInfo LogicalDevice::findQueueFamilyIndex(const PhysicalDevice& physical_device,
+                                                    VkSurfaceKHR surface) {
   const auto& queueFamilyProperties = physical_device.getQueueFamilies();
   QueueFamilyInfo res{};
   uint32_t index = 0;

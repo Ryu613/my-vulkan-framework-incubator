@@ -1,10 +1,10 @@
 #pragma once
 
-#include "vk1/common/common.hpp"
+#include "vk1/core/common.hpp"
 #include "vk1/core/instance.hpp"
 
 namespace vk1 {
-class PhysicalDevice {
+class PhysicalDevice final {
  public:
   NO_COPY_MOVE(PhysicalDevice);
 
@@ -45,9 +45,5 @@ class PhysicalDevice {
   VkPhysicalDeviceProperties properties_;
   VkPhysicalDeviceMemoryProperties memory_properties;
   std::vector<VkQueueFamilyProperties> queue_family_properties;
-  // surface details
-  VkSurfaceCapabilitiesKHR capabilities_;
-  std::vector<VkSurfaceFormatKHR> formats_;
-  std::vector<VkPresentModeKHR> present_modes_;
 };
 }  // namespace vk1

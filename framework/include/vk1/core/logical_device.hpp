@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vk1/common/common.hpp"
+#include "vk1/core/common.hpp"
 #include "vk1/core/physical_device.hpp"
 
 namespace vk1 {
@@ -17,7 +17,8 @@ struct QueueFamilyInfo {
     return graphics_queue_family_index.has_value() && present_queue_family_index.has_value();
   }
 };
-class LogicalDevice {
+
+class LogicalDevice final {
  public:
   NO_COPY_MOVE(LogicalDevice);
 
@@ -34,11 +35,17 @@ class LogicalDevice {
     return vk_device_;
   }
 
+  inline const QueueFamilyInfo& getQueueFamilyInfo() const {
+    return queue_family_info_;
+  }
+
  private:
   const PhysicalDevice& physical_device_;
   VkDevice vk_device_;
   QueueFamilyInfo queue_family_info_;
+
+ private:
+  QueueFamilyInfo findQueueFamilyIndex(const PhysicalDevice& physical_device, VkSurfaceKHR surface);
 };
 
-QueueFamilyInfo findQueueFamilyIndex(const PhysicalDevice& physical_device, VkSurfaceKHR surface);
 }  // namespace vk1

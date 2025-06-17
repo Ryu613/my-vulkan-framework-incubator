@@ -2,7 +2,6 @@
 #define VMA_IMPLEMENTATION
 #include "vk1/core/context.hpp"
 
-#include "vk1/rendering/render_context.hpp"
 namespace vk1 {
 
 Context::Context(const ContextConfig& config) : config_(config) {
@@ -30,13 +29,12 @@ void Context::initVulkan() {
   logical_device_ = std::make_unique<LogicalDevice>(suitablePhysicalDevice, surface_);
   createMemoryAllocator();
   createSwapchain();
-  createImageViews();
+  createSyncObjects();
   createRenderPass();
-  creategraphicsPipeline();
   createFramebuffers();
   createCommandPool();
   createCommandBuffers();
-  createSyncObjects();
+  creategraphicsPipeline();
 }
 void Context::createSurface() {
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
@@ -66,12 +64,19 @@ void Context::createMemoryAllocator() {
   vmaCreateAllocator(&allocInfo, &allocator_);
 }
 
-void Context::createRenderContext() {
-  render_context_ = std::make_unique<RenderContext>(*logical_device_);
+// void Context::createRenderContext() {
+//   render_context_ = std::make_unique<RenderContext>(*logical_device_);
+// }
+
+void Context::createSwapchain() {
+  auto [width, height] = config_.window->getExtent();
+  VkExtent2D extent{width, height};
+  swapchain_ = std::make_unique<Swapchain>(*logical_device_, surface_, extent);
 }
-void Context::createSwapchain() {}
-void Context::createImageViews() {}
-void Context::createRenderPass() {}
+void Context::createRenderPass() {
+  VkFormat format = swapchain_->getSurfaceFormat();
+  render_pass_ = std::make_unique<RenderPass>(*logical_device_, format);
+}
 void Context::creategraphicsPipeline() {}
 void Context::createFramebuffers() {}
 void Context::createCommandPool() {}

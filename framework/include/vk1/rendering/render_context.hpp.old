@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vk1/common/common.hpp"
+#include "vk1/core/common.hpp"
 #include "vk1/core/logical_device.hpp"
 #include "vk1/core/swapchain.hpp"
 

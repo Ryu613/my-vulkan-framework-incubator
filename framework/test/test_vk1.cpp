@@ -1,21 +1,18 @@
 #include "vk1/core/context.hpp"
+#include "vk1/platform/glfw_window.hpp"
 
-#define VK_USE_PLATFORM_WIN32_KHR
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3native.h>
+using namespace vk1;
 
-GLFWwindow* window = nullptr;
+std::unique_ptr<Window> window = nullptr;
 
-vk1::OptionalExtensions getRequiredExtensions() {
+OptionalExtensions getRequiredExtensions() {
   uint32_t glfwExtensionCount = 0;
   const char** glfwExtensions;
   glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
   // fill vector with glfw extensions(by pointer start to end)
   std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
   extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-  vk1::OptionalExtensions ext;
+  OptionalExtensions ext;
   for (const auto& each : extensions) {
     ext.insert({each, true});
   }
@@ -26,20 +23,22 @@ int main() {
   glfwInit();
   // tell GLFW not to create OpenGL context
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-  window = glfwCreateWindow(1024, 768, "Vulkan", nullptr, nullptr);
+  Window::Properties windowProps{
+      .title = "test",
+      .mode = Window::Mode::Windowed,
+      .resizable = true,
+      .extent = {1024, 768},
+  };
+  window = std::make_unique<GlfwWindow>(windowProps);
+  // Window window = glfwCreateWindow(1024, 768, "Vulkan", nullptr, nullptr);
   // glfwSetWindowUserPointer(window, this);
   // glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
-  vk1::ContextConfig config{
+  ContextConfig config{
       .app_name = "default",
-      .window = window,
+      .window = window.get(),
       .is_debug = true,
       .required_layers = {{"VK_LAYER_KHRONOS_validation", true}},
       .required_instance_extensions = getRequiredExtensions(),
   };
-  auto context = std::make_unique<vk1::Context>(config);
+  auto context = std::make_unique<Context>(config);
 }
-// pseudo code for now
-// context.createSwapchain(...);
-// context.createShaderModule();
-// context.createRenderPass();
-// context.createGraphicsPipeline();
