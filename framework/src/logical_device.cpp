@@ -60,4 +60,30 @@ QueueFamilyInfo LogicalDevice::findQueueFamilyIndex(const PhysicalDevice& physic
   }
   return res;
 }
+
+void LogicalDevice::createCommandPoolAndBuffers(uint32_t queue_family_index, uint32_t command_buffer_count) {
+  if (!queue_family_info_.hasIndices(queue_family_index)) {
+    throw std::runtime_error("create command pool failed, queue family index is not exist!");
+  }
+  // TODO destroy previous command pool & buffers
+  VkCommandPoolCreateInfo poolInfo{
+      .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+      .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+      .queueFamilyIndex = queue_family_index,
+  };
+  if (vkCreateCommandPool(vk_device_, &poolInfo, nullptr, &command_pool_) != VK_SUCCESS) {
+    throw std::runtime_error("failed to create command pool!");
+  }
+  command_buffers_.resize(command_buffer_count);
+  VkCommandBufferAllocateInfo allocInfo{
+      .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+      .commandPool = command_pool_,
+      .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+      .commandBufferCount = command_buffer_count,
+  };
+
+  if (vkAllocateCommandBuffers(vk_device_, &allocInfo, command_buffers_.data()) != VK_SUCCESS) {
+    throw std::runtime_error("failed to allocate command buffers!");
+  }
+}
 }  // namespace vk1

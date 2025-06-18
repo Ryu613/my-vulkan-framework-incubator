@@ -1,10 +1,7 @@
 #pragma once
 
 #ifdef _WIN32
-#if !defined(VK_USE_PLATFORM_WIN32_KHR)
 #define NOMINMAX
-#define VK_USE_PLATFORM_WIN32_KHR
-#endif
 #endif
 
 #include <algorithm>

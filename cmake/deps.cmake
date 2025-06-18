@@ -1,4 +1,5 @@
 include(FetchContent)
+set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 
 # ze-tools
 FetchContent_Declare(

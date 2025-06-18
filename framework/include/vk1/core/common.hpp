@@ -2,6 +2,12 @@
 
 #include "vk1/common/common.hpp"
 
+#ifdef _WIN32
+#if !defined(VK_USE_PLATFORM_WIN32_KHR)
+#define VK_USE_PLATFORM_WIN32_KHR
+#endif
+#endif
+
 #define VK_NO_PROTOTYPES
 #include <Volk/volk.h>
 

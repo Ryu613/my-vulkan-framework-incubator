@@ -59,6 +59,8 @@ Swapchain::Swapchain(const LogicalDevice& logical_device,
   vkGetSwapchainImagesKHR(logical_device_.getVkDevice(), vk_swapchain_, &imageCount, images_.data());
 
   createImageViews();
+
+  createSyncObjects();
 }
 
 Swapchain::~Swapchain() {
@@ -150,6 +152,25 @@ void Swapchain::createImageViews() {
         VK_SUCCESS) {
       throw std::runtime_error("failed to create image views!");
     }
+  }
+}
+
+void Swapchain::createSyncObjects() {
+  VkSemaphoreCreateInfo semaphoreInfo{
+      .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+  };
+
+  VkFenceCreateInfo fenceInfo{
+      .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+      .flags = VK_FENCE_CREATE_SIGNALED_BIT,
+  };
+
+  if (vkCreateSemaphore(logical_device_.getVkDevice(), &semaphoreInfo, nullptr, &image_available_) !=
+          VK_SUCCESS ||
+      vkCreateSemaphore(logical_device_.getVkDevice(), &semaphoreInfo, nullptr, &image_rendered_) !=
+          VK_SUCCESS ||
+      vkCreateFence(logical_device_.getVkDevice(), &fenceInfo, nullptr, &acquire_fence_) != VK_SUCCESS) {
+    throw std::runtime_error("failed to create semaphores!");
   }
 }
 }  // namespace vk1

@@ -55,8 +55,6 @@ class Context final {
   void createRenderPass();
   void creategraphicsPipeline();
   void createFramebuffers();
-  void createCommandPool();
-  void createCommandBuffers();
-  void createSyncObjects();
+  void createCommandPoolAndBuffers();
 };
 }  // namespace vk1

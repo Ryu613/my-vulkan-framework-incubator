@@ -3,5 +3,8 @@
 #include "vk1/core/common.hpp"
 
 namespace vk1 {
-class FrameBuffer {};
+class FrameBuffer {
+ public:
+  NO_COPY_MOVE(FrameBuffer);
+};
 }  // namespace vk1

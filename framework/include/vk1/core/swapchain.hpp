@@ -27,6 +27,10 @@ class Swapchain final {
     return surface_format_;
   }
 
+  inline uint32_t getImageCount() const {
+    return static_cast<uint32_t>(images_.size());
+  }
+
  private:
   const LogicalDevice& logical_device_;
   VkSwapchainKHR vk_swapchain_ = VK_NULL_HANDLE;
@@ -36,6 +40,9 @@ class Swapchain final {
   VkPresentModeKHR present_mode_;
   std::vector<VkImage> images_;
   std::vector<VkImageView> image_views_;
+  VkSemaphore image_available_ = VK_NULL_HANDLE;
+  VkSemaphore image_rendered_ = VK_NULL_HANDLE;
+  VkFence acquire_fence_ = VK_NULL_HANDLE;
 
  private:
   SwapchainSupportDetails querySwapchainSupport(const PhysicalDevice& physical_device, VkSurfaceKHR surface);
@@ -45,5 +52,6 @@ class Swapchain final {
                                            const SwapchainSupportDetails& supported);
   VkExtent2D chooseExtent(VkExtent2D extent, const VkSurfaceCapabilitiesKHR& capabilities);
   void createImageViews();
+  void createSyncObjects();
 };
 }  // namespace vk1

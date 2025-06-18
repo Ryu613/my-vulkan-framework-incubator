@@ -29,12 +29,10 @@ void Context::initVulkan() {
   logical_device_ = std::make_unique<LogicalDevice>(suitablePhysicalDevice, surface_);
   createMemoryAllocator();
   createSwapchain();
-  createSyncObjects();
   createRenderPass();
-  createFramebuffers();
-  createCommandPool();
-  createCommandBuffers();
+  createCommandPoolAndBuffers();
   creategraphicsPipeline();
+  createFramebuffers();
 }
 void Context::createSurface() {
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
@@ -79,8 +77,10 @@ void Context::createRenderPass() {
 }
 void Context::creategraphicsPipeline() {}
 void Context::createFramebuffers() {}
-void Context::createCommandPool() {}
-void Context::createCommandBuffers() {}
-void Context::createSyncObjects() {}
+void Context::createCommandPoolAndBuffers() {
+  uint32_t graphicsQueueFamilyIndex =
+      logical_device_->getQueueFamilyInfo().graphics_queue_family_index.value();
+  logical_device_->createCommandPoolAndBuffers(graphicsQueueFamilyIndex, swapchain_->getImageCount());
+}
 
 }  // namespace vk1
