@@ -41,4 +41,9 @@ int main() {
       .required_instance_extensions = getRequiredExtensions(),
   };
   auto context = std::make_unique<Context>(config);
+  while (!window->shouldClose()) {
+    window->processEvents();
+    context->drawFrame();
+  }
+  context.reset();
 }

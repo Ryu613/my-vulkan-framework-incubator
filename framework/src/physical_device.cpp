@@ -10,13 +10,13 @@ PhysicalDevice::PhysicalDevice(const Instance& instance, VkPhysicalDevice vk_phy
   // properties
   vkGetPhysicalDeviceProperties(vk_physical_device_, &properties_);
   // memory properties
-  vkGetPhysicalDeviceMemoryProperties(vk_physical_device_, &memory_properties);
+  vkGetPhysicalDeviceMemoryProperties(vk_physical_device_, &memory_properties_);
   // queue family info
   uint32_t queueFamilyCount = 0;
   vkGetPhysicalDeviceQueueFamilyProperties(vk_physical_device_, &queueFamilyCount, nullptr);
-  queue_family_properties.resize(queueFamilyCount);
+  queue_family_properties_.resize(queueFamilyCount);
   vkGetPhysicalDeviceQueueFamilyProperties(
-      vk_physical_device_, &queueFamilyCount, queue_family_properties.data());
+      vk_physical_device_, &queueFamilyCount, queue_family_properties_.data());
   // extensions
   uint32_t extensionCount;
   vkEnumerateDeviceExtensionProperties(vk_physical_device_, nullptr, &extensionCount, nullptr);

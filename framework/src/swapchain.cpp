@@ -173,4 +173,25 @@ void Swapchain::createSyncObjects() {
     throw std::runtime_error("failed to create semaphores!");
   }
 }
+
+void Swapchain::acquireNextImage() {
+  const auto& device = logical_device_.getVkDevice();
+  vkWaitForFences(device, 1, &acquire_fence_, VK_TRUE, UINT64_MAX);
+  vkResetFences(device, 1, &acquire_fence_);
+  VkResult result = vkAcquireNextImageKHR(logical_device_.getVkDevice(),
+                                          vk_swapchain_,
+                                          UINT64_MAX,
+                                          image_available_,
+                                          VK_NULL_HANDLE,
+                                          &image_index_);
+  // TODO: framebuffer resize callback
+  if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+    recreate();
+    return;
+  } else if (result != VK_SUCCESS) {
+    throw std::runtime_error("failed to acquire swapchain image!");
+  }
+}
+
+void Swapchain::recreate() {}
 }  // namespace vk1

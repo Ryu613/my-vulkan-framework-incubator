@@ -21,7 +21,7 @@ class PhysicalDevice final {
     return enabled_device_extensions_;
   }
   inline const std::vector<VkQueueFamilyProperties>& getQueueFamilies() const {
-    return queue_family_properties;
+    return queue_family_properties_;
   }
 
   inline const VkPhysicalDeviceProperties& getProperties() const {
@@ -43,7 +43,7 @@ class PhysicalDevice final {
   std::vector<VkExtensionProperties> device_extensions_;
   std::vector<const char*> enabled_device_extensions_;
   VkPhysicalDeviceProperties properties_;
-  VkPhysicalDeviceMemoryProperties memory_properties;
-  std::vector<VkQueueFamilyProperties> queue_family_properties;
+  VkPhysicalDeviceMemoryProperties memory_properties_;
+  std::vector<VkQueueFamilyProperties> queue_family_properties_;
 };
 }  // namespace vk1

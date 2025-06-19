@@ -34,6 +34,7 @@ class Context final {
 
  public:
   // void createRenderContext();
+  void drawFrame();
 
  private:
   ContextConfig config_;
@@ -53,7 +54,7 @@ class Context final {
   void createMemoryAllocator();
   void createSwapchain();
   void createRenderPass();
-  void creategraphicsPipeline();
+  void createGraphicsPipeline();
   void createFramebuffers();
   void createCommandPoolAndBuffers();
 };

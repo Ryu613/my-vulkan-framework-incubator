@@ -2,9 +2,12 @@
 #define VMA_IMPLEMENTATION
 #include "vk1/core/context.hpp"
 
+#include "ze/utils/filesystem.hpp"
+
 namespace vk1 {
 
 Context::Context(const ContextConfig& config) : config_(config) {
+  ze::utils::filesystem::init();
   initVulkan();
 }
 
@@ -31,7 +34,7 @@ void Context::initVulkan() {
   createSwapchain();
   createRenderPass();
   createCommandPoolAndBuffers();
-  creategraphicsPipeline();
+  createGraphicsPipeline();
   createFramebuffers();
 }
 void Context::createSurface() {
@@ -75,12 +78,35 @@ void Context::createRenderPass() {
   VkFormat format = swapchain_->getSurfaceFormat();
   render_pass_ = std::make_unique<RenderPass>(*logical_device_, format);
 }
-void Context::creategraphicsPipeline() {}
-void Context::createFramebuffers() {}
+void Context::createGraphicsPipeline() {
+  Pipeline::PipelineConfig pipeConfig{
+      .pipelineType = Pipeline::PipelineType::GraphicsPipeline,
+      .vertexShaderPath = "Shaders/vert.spv",
+      .fragmentShaderPath = "Shaders/frag.spv",
+      .renderPass = render_pass_->getVkRenderPass(),
+      .viewportExtent = swapchain_->getImageExtent(),
+  };
+  logical_device_->createPipeline(pipeConfig);
+}
+void Context::createFramebuffers() {
+  uint32_t imageCount = swapchain_->getImageCount();
+  const auto& imageViews = swapchain_->getImageViews();
+  auto imageExtent = swapchain_->getImageExtent();
+  frame_buffers_.resize(imageCount);
+  for (uint32_t i = 0; i < imageCount; ++i) {
+    std::vector<VkImageView> attachments;
+    attachments.push_back(imageViews[i]);
+    frame_buffers_.push_back(std::make_unique<FrameBuffer>(
+        *logical_device_, render_pass_->getVkRenderPass(), imageExtent, attachments));
+  }
+}
 void Context::createCommandPoolAndBuffers() {
   uint32_t graphicsQueueFamilyIndex =
       logical_device_->getQueueFamilyInfo().graphics_queue_family_index.value();
   logical_device_->createCommandPoolAndBuffers(graphicsQueueFamilyIndex, swapchain_->getImageCount());
 }
-
+void Context::drawFrame() {
+  swapchain_->acquireNextImage();
+  // VkCommandBuffer cmdBuffer = logical_device_->getCommandBufferToBegin();
+}
 }  // namespace vk1

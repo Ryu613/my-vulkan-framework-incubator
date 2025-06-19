@@ -2,6 +2,7 @@
 
 #include "vk1/core/common.hpp"
 #include "vk1/core/physical_device.hpp"
+#include "vk1/core/pipeline.hpp"
 
 namespace vk1 {
 struct QueueFamilyInfo {
@@ -45,7 +46,17 @@ class LogicalDevice final {
     return queue_family_info_;
   }
 
-  void createCommandPoolAndBuffers(uint32_t queue_family_index, uint32_t command_buffer_count);
+  inline VkFence getCurrentFence() const {
+    return fences_[current_fence_index_];
+  }
+
+  void createCommandPoolAndBuffers(uint32_t queue_family_index,
+                                   uint32_t command_buffer_count,
+                                   uint32_t in_flight_count = 2);
+
+  void createPipeline(const Pipeline::PipelineConfig& pipeline_config);
+
+  VkCommandBuffer getCommandBufferToBegin();
 
  private:
   const PhysicalDevice& physical_device_;
@@ -53,6 +64,10 @@ class LogicalDevice final {
   QueueFamilyInfo queue_family_info_;
   VkCommandPool command_pool_;
   std::vector<VkCommandBuffer> command_buffers_;
+  std::unique_ptr<Pipeline> pipeline_;
+  std::vector<VkFence> fences_;
+  uint32_t current_fence_index_ = 0;
+  uint32_t commands_in_flight_ = 2;
 
  private:
   QueueFamilyInfo findQueueFamilyIndex(const PhysicalDevice& physical_device, VkSurfaceKHR surface);

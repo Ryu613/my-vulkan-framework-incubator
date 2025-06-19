@@ -61,10 +61,13 @@ QueueFamilyInfo LogicalDevice::findQueueFamilyIndex(const PhysicalDevice& physic
   return res;
 }
 
-void LogicalDevice::createCommandPoolAndBuffers(uint32_t queue_family_index, uint32_t command_buffer_count) {
+void LogicalDevice::createCommandPoolAndBuffers(uint32_t queue_family_index,
+                                                uint32_t command_buffer_count,
+                                                uint32_t in_flight_count) {
   if (!queue_family_info_.hasIndices(queue_family_index)) {
     throw std::runtime_error("create command pool failed, queue family index is not exist!");
   }
+  commands_in_flight_ = in_flight_count;
   // TODO destroy previous command pool & buffers
   VkCommandPoolCreateInfo poolInfo{
       .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
@@ -85,5 +88,22 @@ void LogicalDevice::createCommandPoolAndBuffers(uint32_t queue_family_index, uin
   if (vkAllocateCommandBuffers(vk_device_, &allocInfo, command_buffers_.data()) != VK_SUCCESS) {
     throw std::runtime_error("failed to allocate command buffers!");
   }
+  for (uint32_t i = 0; i < commands_in_flight_; ++i) {
+    VkFenceCreateInfo fenceInfo{
+        .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+        .flags = VK_FENCE_CREATE_SIGNALED_BIT,
+    };
+    if (vkCreateFence(vk_device_, &fenceInfo, nullptr, &fences_[i]) != VK_SUCCESS) {
+      throw std::runtime_error("create fence failed!");
+    }
+  }
 }
+
+void LogicalDevice::createPipeline(const Pipeline::PipelineConfig& pipeline_config) {
+  pipeline_ = std::make_unique<Pipeline>(*this, pipeline_config);
+}
+
+// VkCommandBuffer LogicalDevice::getCommandBufferToBegin() {
+//   vkWaitForFences(vk_device_, 1, &fences_[current_fence_index_], VK_TRUE, UINT64_MAX);
+// }
 }  // namespace vk1

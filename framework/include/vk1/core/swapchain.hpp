@@ -31,6 +31,18 @@ class Swapchain final {
     return static_cast<uint32_t>(images_.size());
   }
 
+  inline VkExtent2D getImageExtent() const {
+    return extent_;
+  }
+
+  inline const std::vector<VkImageView>& getImageViews() const {
+    return image_views_;
+  }
+
+  void acquireNextImage();
+
+  void recreate();
+
  private:
   const LogicalDevice& logical_device_;
   VkSwapchainKHR vk_swapchain_ = VK_NULL_HANDLE;
@@ -39,6 +51,7 @@ class Swapchain final {
   VkColorSpaceKHR color_space_;
   VkPresentModeKHR present_mode_;
   std::vector<VkImage> images_;
+  uint32_t image_index_ = 0;
   std::vector<VkImageView> image_views_;
   VkSemaphore image_available_ = VK_NULL_HANDLE;
   VkSemaphore image_rendered_ = VK_NULL_HANDLE;
