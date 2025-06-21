@@ -185,7 +185,6 @@ void Swapchain::createSyncObjects() {
 uint32_t Swapchain::acquireNextImage() {
   const auto& device = logical_device_.getVkDevice();
   vkWaitForFences(device, 1, &acquire_fence_, VK_TRUE, UINT64_MAX);
-  vkResetFences(device, 1, &acquire_fence_);
   VkResult result = vkAcquireNextImageKHR(logical_device_.getVkDevice(),
                                           vk_swapchain_,
                                           UINT64_MAX,
@@ -199,6 +198,7 @@ uint32_t Swapchain::acquireNextImage() {
   } else if (result != VK_SUCCESS) {
     throw std::runtime_error("failed to acquire swapchain image!");
   }
+  vkResetFences(device, 1, &acquire_fence_);
   return image_index_;
 }
 

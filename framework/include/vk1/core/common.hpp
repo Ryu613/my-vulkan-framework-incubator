@@ -15,6 +15,8 @@
 #include <vulkan/vk_enum_string_helper.h>
 #endif
 
+#include "glm/glm.hpp"
+
 namespace vk1 {
 using OptionalExtensions = std::unordered_map<const char*, bool>;
 using OptionalLayers = OptionalExtensions;

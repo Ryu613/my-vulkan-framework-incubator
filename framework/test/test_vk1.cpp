@@ -18,6 +18,7 @@ OptionalExtensions getRequiredExtensions() {
   }
   return ext;
 }
+
 int main() {
   // init glfw
   glfwInit();

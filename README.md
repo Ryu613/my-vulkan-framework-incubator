@@ -1,24 +1,26 @@
 # My Vulkan Framework Incubator
 
-vulkan startup/template project for learning purpose
+2025 startup/template vulkan project for learning purpose
 
-## building requirement
+## build requirement
 
-1. cmake 4.0+
+1. cmake >4.0
 2. vcpkg
 3. Vulkan SDK
 4. C++20 compiler
 
-### optional requirement
+### optional
 
-1. editorconfig support
-1. clang-format support
+1. editorconfig
+1. clang-format
 
 ## build
 
-now this project is for Windows
+Windows only for now
 
-alter `CMakeUserPrests.json` to your directory of `c++ compilers` and `vcpkg toolchain`, then
+create `CMakeUserPresets.json` and set specific environment args from `CMakePresets.json`
+
+then you can build
 
 ```cmd
 // project's root directory
