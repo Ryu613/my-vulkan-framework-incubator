@@ -46,4 +46,5 @@ int main() {
     context->drawFrame();
   }
   context.reset();
+  window.reset();
 }

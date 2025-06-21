@@ -1,6 +1,7 @@
 #pragma once
 
-#include "vk1/common/common.hpp"
+#include "vk1/core/common.hpp"
+#include "vk1/core/instance.hpp"
 
 namespace vk1 {
 class Window {
@@ -31,6 +32,7 @@ class Window {
   virtual void processEvents() {};
   virtual void close() = 0;
   virtual std::vector<const char*> getRequiredExtensions() const = 0;
+  virtual VkSurfaceKHR createSurface(const Instance& instance) = 0;
 
   inline const Extent getExtent() const {
     return properties_.extent;

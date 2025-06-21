@@ -20,6 +20,7 @@ class GlfwWindow : public Window {
   void processEvents() override;
   void close() override;
   std::vector<const char*> getRequiredExtensions() const override;
+  VkSurfaceKHR createSurface(const Instance& instance) override;
 
  private:
   GLFWwindow* window_ = nullptr;

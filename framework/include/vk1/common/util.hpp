@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vk1/core/common.hpp"
+#include "vk1/common/common.hpp"
 
 namespace vk1::util {
 template <typename T>

@@ -64,6 +64,14 @@ Swapchain::Swapchain(const LogicalDevice& logical_device,
 }
 
 Swapchain::~Swapchain() {
+  auto device = logical_device_.getVkDevice();
+  vkWaitForFences(device, 1, &acquire_fence_, VK_TRUE, UINT64_MAX);
+  vkDestroyFence(device, acquire_fence_, nullptr);
+  vkDestroySemaphore(device, image_rendered_, nullptr);
+  vkDestroySemaphore(device, image_available_, nullptr);
+  for (auto imageView : image_views_) {
+    vkDestroyImageView(logical_device_.getVkDevice(), imageView, nullptr);
+  }
   vkDestroySwapchainKHR(logical_device_.getVkDevice(), vk_swapchain_, nullptr);
 }
 
@@ -174,7 +182,7 @@ void Swapchain::createSyncObjects() {
   }
 }
 
-void Swapchain::acquireNextImage() {
+uint32_t Swapchain::acquireNextImage() {
   const auto& device = logical_device_.getVkDevice();
   vkWaitForFences(device, 1, &acquire_fence_, VK_TRUE, UINT64_MAX);
   vkResetFences(device, 1, &acquire_fence_);
@@ -187,11 +195,46 @@ void Swapchain::acquireNextImage() {
   // TODO: framebuffer resize callback
   if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
     recreate();
-    return;
+    return image_index_;
   } else if (result != VK_SUCCESS) {
     throw std::runtime_error("failed to acquire swapchain image!");
   }
+  return image_index_;
 }
 
-void Swapchain::recreate() {}
+void Swapchain::recreate() {
+  throw std::runtime_error("not implemented yet!");
+}
+
+VkSubmitInfo Swapchain::createSubmitInfo(VkCommandBuffer command_buffer,
+                                         const VkPipelineStageFlags* submit_wait_stage_flag) const {
+  VkSubmitInfo submitInfo{};
+  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+  // VkSemaphore waitSemaphores[] = {image_available_};
+  // VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+  submitInfo.waitSemaphoreCount = 1;
+  submitInfo.pWaitSemaphores = &image_available_;
+  submitInfo.pWaitDstStageMask = submit_wait_stage_flag;
+  submitInfo.commandBufferCount = 1;
+  submitInfo.pCommandBuffers = &command_buffer;
+
+  // VkSemaphore signalSemaphores[] = {image_rendered_};
+  submitInfo.signalSemaphoreCount = 1;
+  submitInfo.pSignalSemaphores = &image_rendered_;
+  return submitInfo;
+}
+
+void Swapchain::present(VkQueue present_queue) {
+  VkSemaphore signalSemaphores[] = {image_rendered_};
+  VkPresentInfoKHR presentInfo{};
+  presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+  presentInfo.waitSemaphoreCount = 1;
+  presentInfo.pWaitSemaphores = signalSemaphores;
+  VkSwapchainKHR swapchains[] = {vk_swapchain_};
+  presentInfo.swapchainCount = 1;
+  presentInfo.pSwapchains = swapchains;
+  presentInfo.pImageIndices = &image_index_;
+  presentInfo.pResults = nullptr;
+  vkQueuePresentKHR(present_queue, &presentInfo);
+}
 }  // namespace vk1

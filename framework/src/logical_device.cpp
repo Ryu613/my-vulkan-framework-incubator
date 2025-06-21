@@ -1,5 +1,7 @@
 #include "vk1/core/logical_device.hpp"
 
+#include "vk1/core/swapchain.hpp"
+
 namespace vk1 {
 LogicalDevice::LogicalDevice(const PhysicalDevice& physical_device, VkSurfaceKHR surface)
     : physical_device_(physical_device), queue_family_info_(findQueueFamilyIndex(physical_device, surface)) {
@@ -32,11 +34,18 @@ LogicalDevice::LogicalDevice(const PhysicalDevice& physical_device, VkSurfaceKHR
     throw std::runtime_error("failed to create logical device!");
   }
   volkLoadDevice(vk_device_);
-  // vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
-  // vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
+  vkGetDeviceQueue(vk_device_, queue_family_info_.graphics_queue_family_index.value(), 0, &graphics_queue_);
+  vkGetDeviceQueue(vk_device_, queue_family_info_.present_queue_family_index.value(), 0, &present_queue_);
 }
 
-LogicalDevice::~LogicalDevice() {}
+LogicalDevice::~LogicalDevice() {
+  for (auto fence : fences_) {
+    vkDestroyFence(vk_device_, fence, nullptr);
+  }
+  pipeline_.reset();
+  vkDestroyCommandPool(vk_device_, command_pool_, nullptr);
+  vkDestroyDevice(vk_device_, nullptr);
+}
 
 QueueFamilyInfo LogicalDevice::findQueueFamilyIndex(const PhysicalDevice& physical_device,
                                                     VkSurfaceKHR surface) {
@@ -57,6 +66,9 @@ QueueFamilyInfo LogicalDevice::findQueueFamilyIndex(const PhysicalDevice& physic
       break;
     }
     index++;
+  }
+  if (!res.isComplete()) {
+    throw std::runtime_error("cannot find suitable queue family indices!");
   }
   return res;
 }
@@ -89,13 +101,15 @@ void LogicalDevice::createCommandPoolAndBuffers(uint32_t queue_family_index,
     throw std::runtime_error("failed to allocate command buffers!");
   }
   for (uint32_t i = 0; i < commands_in_flight_; ++i) {
+    VkFence fence;
     VkFenceCreateInfo fenceInfo{
         .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
         .flags = VK_FENCE_CREATE_SIGNALED_BIT,
     };
-    if (vkCreateFence(vk_device_, &fenceInfo, nullptr, &fences_[i]) != VK_SUCCESS) {
+    if (vkCreateFence(vk_device_, &fenceInfo, nullptr, &fence) != VK_SUCCESS) {
       throw std::runtime_error("create fence failed!");
     }
+    fences_.push_back(std::move(fence));
   }
 }
 
@@ -103,7 +117,39 @@ void LogicalDevice::createPipeline(const Pipeline::PipelineConfig& pipeline_conf
   pipeline_ = std::make_unique<Pipeline>(*this, pipeline_config);
 }
 
-// VkCommandBuffer LogicalDevice::getCommandBufferToBegin() {
-//   vkWaitForFences(vk_device_, 1, &fences_[current_fence_index_], VK_TRUE, UINT64_MAX);
-// }
+VkCommandBuffer LogicalDevice::getCommandBufferToBegin() {
+  vkWaitForFences(vk_device_, 1, &fences_[current_fence_index_], VK_TRUE, UINT64_MAX);
+  recordCommandBuffer();
+  return command_buffers_[current_command_buffer_index_];
+}
+
+void LogicalDevice::recordCommandBuffer() {
+  vkResetCommandBuffer(command_buffers_[current_command_buffer_index_],
+                       VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
+  VkCommandBufferBeginInfo beginInfo{
+      .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+      .flags = 0,
+      .pInheritanceInfo = nullptr,
+  };
+
+  if (vkBeginCommandBuffer(command_buffers_[current_command_buffer_index_], &beginInfo) != VK_SUCCESS) {
+    throw std::runtime_error("failed to begin recording command buffer!");
+  }
+}
+
+void LogicalDevice::endCommandBuffer(VkCommandBuffer command_buffer) {
+  if (vkEndCommandBuffer(command_buffer) != VK_SUCCESS) {
+    throw std::runtime_error("faield to record command buffer!");
+  }
+}
+
+void LogicalDevice::submitCommand(VkCommandBuffer command_buffer, VkSubmitInfo submit_info) {
+  vkResetFences(vk_device_, 1, &fences_[current_fence_index_]);
+  if (vkQueueSubmit(graphics_queue_, 1, &submit_info, fences_[current_fence_index_]) != VK_SUCCESS) {
+    throw std::runtime_error("failed to submit draw command buffer!");
+  }
+  current_command_buffer_index_ =
+      (current_command_buffer_index_ + 1) % static_cast<uint32_t>(command_buffers_.size());
+  current_fence_index_ = (current_fence_index_ + 1) % commands_in_flight_;
+}
 }  // namespace vk1

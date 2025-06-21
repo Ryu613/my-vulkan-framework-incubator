@@ -5,6 +5,7 @@
 #include "vk1/core/pipeline.hpp"
 
 namespace vk1 {
+class Swapchain;
 struct QueueFamilyInfo {
   std::optional<uint32_t> graphics_queue_family_index;
   std::optional<uint32_t> present_queue_family_index;
@@ -50,6 +51,14 @@ class LogicalDevice final {
     return fences_[current_fence_index_];
   }
 
+  inline const Pipeline& getPipeline() const {
+    return *pipeline_;
+  }
+
+  inline VkQueue getPresentQueue() const {
+    return present_queue_;
+  }
+
   void createCommandPoolAndBuffers(uint32_t queue_family_index,
                                    uint32_t command_buffer_count,
                                    uint32_t in_flight_count = 2);
@@ -58,19 +67,27 @@ class LogicalDevice final {
 
   VkCommandBuffer getCommandBufferToBegin();
 
+  void endCommandBuffer(VkCommandBuffer command_buffer);
+
+  void submitCommand(VkCommandBuffer command_buffer, VkSubmitInfo submit_info);
+
  private:
   const PhysicalDevice& physical_device_;
   VkDevice vk_device_;
   QueueFamilyInfo queue_family_info_;
+  VkQueue graphics_queue_;
+  VkQueue present_queue_;
   VkCommandPool command_pool_;
   std::vector<VkCommandBuffer> command_buffers_;
   std::unique_ptr<Pipeline> pipeline_;
   std::vector<VkFence> fences_;
   uint32_t current_fence_index_ = 0;
+  uint32_t current_command_buffer_index_ = 0;
   uint32_t commands_in_flight_ = 2;
 
  private:
   QueueFamilyInfo findQueueFamilyIndex(const PhysicalDevice& physical_device, VkSurfaceKHR surface);
+  void recordCommandBuffer();
 };
 
 }  // namespace vk1

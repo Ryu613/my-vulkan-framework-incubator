@@ -6,7 +6,7 @@
 
 namespace vk1 {
 struct SwapchainSupportDetails {
-  VkSurfaceCapabilitiesKHR capabilities;
+  VkSurfaceCapabilitiesKHR capabilities{};
   std::vector<VkSurfaceFormatKHR> surface_formats;
   std::vector<VkPresentModeKHR> present_modes;
 };
@@ -39,9 +39,14 @@ class Swapchain final {
     return image_views_;
   }
 
-  void acquireNextImage();
+  uint32_t acquireNextImage();
+
+  VkSubmitInfo createSubmitInfo(VkCommandBuffer command_buffer,
+                                const VkPipelineStageFlags* submit_wait_stage_flag) const;
 
   void recreate();
+
+  void present(VkQueue present_queue);
 
  private:
   const LogicalDevice& logical_device_;

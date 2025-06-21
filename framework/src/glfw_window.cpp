@@ -27,4 +27,16 @@ std::vector<const char*> GlfwWindow::getRequiredExtensions() const {
   const char** names = glfwGetRequiredInstanceExtensions(&extensionsCount);
   return {names, names + extensionsCount};
 }
+
+VkSurfaceKHR GlfwWindow::createSurface(const Instance& instance) {
+  if (window_ == nullptr) {
+    throw std::runtime_error("window is not unitialized, cannot create surface!");
+  }
+  VkSurfaceKHR surface;
+  VkResult res = glfwCreateWindowSurface(instance.getVkInstance(), window_, NULL, &surface);
+  if (res != VK_SUCCESS) {
+    throw std::runtime_error("create vulkan surface failed!");
+  }
+  return surface;
+}
 }  // namespace vk1

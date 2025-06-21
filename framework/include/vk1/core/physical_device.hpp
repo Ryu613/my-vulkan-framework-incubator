@@ -38,12 +38,12 @@ class PhysicalDevice final {
 
  private:
   const Instance& instance_;
-  VkPhysicalDevice vk_physical_device_;
-  VkPhysicalDeviceFeatures features_;
+  VkPhysicalDevice vk_physical_device_ = VK_NULL_HANDLE;
+  VkPhysicalDeviceFeatures features_{};
   std::vector<VkExtensionProperties> device_extensions_;
   std::vector<const char*> enabled_device_extensions_;
-  VkPhysicalDeviceProperties properties_;
-  VkPhysicalDeviceMemoryProperties memory_properties_;
+  VkPhysicalDeviceProperties properties_{};
+  VkPhysicalDeviceMemoryProperties memory_properties_{};
   std::vector<VkQueueFamilyProperties> queue_family_properties_;
 };
 }  // namespace vk1

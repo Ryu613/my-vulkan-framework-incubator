@@ -27,6 +27,15 @@ debugMessengerCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
   std::cerr << "validation layer: " << pCallbackData->pMessage << "\n";
   return VK_FALSE;
 }
+void destroyDebugUtilsMessengerEXT(VkInstance instance,
+                                   VkDebugUtilsMessengerEXT debugMessenger,
+                                   const VkAllocationCallbacks* pAllocator) {
+  auto func =
+      (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+  if (func != nullptr) {
+    func(instance, debugMessenger, pAllocator);
+  }
+}
 }  // namespace
 
 Instance::Instance(std::string name,
@@ -82,7 +91,7 @@ Instance::Instance(std::string name,
 }
 Instance::~Instance() {
   if (is_debug_) {
-    vkDestroyDebugUtilsMessengerEXT(vk_instance_, debug_utils_messenger_, nullptr);
+    destroyDebugUtilsMessengerEXT(vk_instance_, debug_utils_messenger_, nullptr);
   }
   vkDestroyInstance(vk_instance_, nullptr);
 }
@@ -168,7 +177,9 @@ const PhysicalDevice& Instance::chooseSuitablePhysicalDevice(VkSurfaceKHR surfac
     candidates.insert({score, device.get()});
   }
   if (candidates.rbegin()->first > 0) {
-    return *(candidates.rbegin()->second);
+    auto& chosenDevice = candidates.rbegin()->second;
+    std::cout << "chosen device: " << chosenDevice->getProperties().deviceName << "\n";
+    return *chosenDevice;
   } else {
     throw std::runtime_error("failed to find a suitable GPU!");
   }
