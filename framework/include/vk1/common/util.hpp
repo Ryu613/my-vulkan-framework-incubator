@@ -20,7 +20,7 @@ struct SupportInfoBundle {
  *
  * @tparam T Type of the available items (e.g., VkExtensionProperties, VkLayerProperties)
  * @param available List of available Vulkan extensions or layers
- * @param required Map of required names and a flag indicating if they are optional (true = optional)
+ * @param required Map of required names and a flag indicating if they are optional (true = must)
  * @param getNameFunc A function that extracts the name (const char*) from an item of type T
  * @return SupportBundle Contains a flag indicating full support and a list of supported names
  */
@@ -29,7 +29,7 @@ inline SupportInfoBundle isSupported(const std::vector<T>& available,
                                      const std::unordered_map<const char*, bool>& required,
                                      getTNameFunc<T> getNameFunc) {
   SupportInfoBundle result;
-  for (const auto& [name, optional] : required) {
+  for (const auto& [name, must] : required) {
     bool found = false;
     for (const auto& each : available) {
       if (strcmp(name, getNameFunc(each)) == 0) {
@@ -37,7 +37,7 @@ inline SupportInfoBundle isSupported(const std::vector<T>& available,
         found = true;
       }
     }
-    if (!found && !optional) {
+    if (!found && must) {
       return result;
     }
   }
