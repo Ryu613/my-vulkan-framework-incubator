@@ -20,10 +20,6 @@ OptionalExtensions getRequiredExtensions() {
 }
 
 int main() {
-  // init glfw
-  glfwInit();
-  // tell GLFW not to create OpenGL context
-  glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
   Window::Properties windowProps{
       .title = "test",
       .mode = Window::Mode::Windowed,
