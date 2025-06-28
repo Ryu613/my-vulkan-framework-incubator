@@ -1,9 +1,3 @@
-find_package(Vulkan REQUIRED)
-find_package(glm CONFIG REQUIRED)
-find_package(glfw3 CONFIG REQUIRED)
-find_package(Stb REQUIRED)
-find_package(tinyobjloader CONFIG REQUIRED)
-
 include(${PROJECT_ROOT_DIR}/cmake/deps.cmake)
 
 file(GLOB_RECURSE vk1_src CONFIGURE_DEPENDS include/*.hpp src/*.cpp src/*.hpp)

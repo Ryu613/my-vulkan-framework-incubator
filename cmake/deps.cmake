@@ -11,3 +11,9 @@ FetchContent_Declare(
 	SOURCE_DIR ${PROJECT_ROOT_DIR}/deps/zetools
 )
 FetchContent_MakeAvailable(zetools)
+
+find_package(Vulkan REQUIRED)
+find_package(glm CONFIG REQUIRED)
+find_package(glfw3 CONFIG REQUIRED)
+find_package(Stb REQUIRED)
+find_package(tinyobjloader CONFIG REQUIRED)
