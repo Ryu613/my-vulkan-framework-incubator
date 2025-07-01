@@ -33,10 +33,10 @@ class Instance final {
  private:
   std::string name_;
   bool is_debug_ = false;
-  VkInstance vk_instance_ = VK_NULL_HANDLE;
+  VkInstance vk_instance_{VK_NULL_HANDLE};
   std::vector<const char*> enabled_extensions_;
   std::vector<const char*> enabled_layers_;
-  VkDebugUtilsMessengerEXT debug_utils_messenger_ = VK_NULL_HANDLE;
+  VkDebugUtilsMessengerEXT debug_utils_messenger_{VK_NULL_HANDLE};
   std::vector<std::unique_ptr<PhysicalDevice>> physical_devices_;
 
  private:

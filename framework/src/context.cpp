@@ -47,9 +47,14 @@ void Context::initVulkan() {
 }
 
 void Context::createMemoryAllocator() {
+  const uint32_t apiVersion = VK_API_VERSION_1_3;
   const VmaVulkanFunctions vulkanFunctions = {
       .vkGetInstanceProcAddr = vkGetInstanceProcAddr,
       .vkGetDeviceProcAddr = vkGetDeviceProcAddr,
+#if VMA_VULKAN_VERSION >= 1003000
+      .vkGetDeviceBufferMemoryRequirements = vkGetDeviceBufferMemoryRequirements,
+      .vkGetDeviceImageMemoryRequirements = vkGetDeviceImageMemoryRequirements,
+#endif
   };
 
   const VmaAllocatorCreateInfo allocInfo = {
@@ -57,6 +62,7 @@ void Context::createMemoryAllocator() {
       .device = logical_device_->getVkDevice(),
       .pVulkanFunctions = &vulkanFunctions,
       .instance = instance_->getVkInstance(),
+      .vulkanApiVersion = apiVersion,
   };
   vmaCreateAllocator(&allocInfo, &allocator_);
 }
