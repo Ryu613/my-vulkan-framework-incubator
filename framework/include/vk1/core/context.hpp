@@ -36,6 +36,10 @@ class Context final {
   // void createRenderContext();
   void drawFrame();
 
+  inline const VmaAllocator& getAllocator() const {
+    return allocator_;
+  }
+
  private:
   ContextConfig config_;
   std::unique_ptr<Instance> instance_;
