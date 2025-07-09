@@ -56,8 +56,8 @@ class Swapchain final {
   VkColorSpaceKHR color_space_;
   VkPresentModeKHR present_mode_;
   std::vector<VkImage> images_;
-  uint32_t image_index_ = 0;
   std::vector<VkImageView> image_views_;
+  uint32_t image_index_ = 0;
   VkSemaphore image_available_ = VK_NULL_HANDLE;
   VkSemaphore image_rendered_ = VK_NULL_HANDLE;
   VkFence acquire_fence_ = VK_NULL_HANDLE;
@@ -69,7 +69,7 @@ class Swapchain final {
                                            VkPresentModeKHR required_present_mode,
                                            const SwapchainSupportDetails& supported);
   VkExtent2D chooseExtent(VkExtent2D extent, const VkSurfaceCapabilitiesKHR& capabilities);
-  void createImageViews();
+  void wrapSwapchainImages();
   void createSyncObjects();
 };
 }  // namespace vk1

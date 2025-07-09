@@ -43,6 +43,8 @@ void Context::initVulkan() {
   createRenderPass();
   createCommandPoolAndBuffers();
   createGraphicsPipeline();
+  createColorResources();
+  createDepthResources();
   createFramebuffers();
 }
 
@@ -90,6 +92,13 @@ void Context::createGraphicsPipeline() {
   };
   logical_device_->createPipeline(pipeConfig);
 }
+
+void Context::createColorResources() {
+  this->createTextureImage()
+}
+
+void Context::createDepthResources() {}
+
 void Context::createFramebuffers() {
   uint32_t imageCount = swapchain_->getImageCount();
   const auto& imageViews = swapchain_->getImageViews();

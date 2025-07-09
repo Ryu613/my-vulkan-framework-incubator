@@ -20,5 +20,11 @@ class RenderPass final {
  private:
   const LogicalDevice& logical_device_;
   VkRenderPass vk_render_pass_;
+
+ private:
+  VkFormat findDepthFormat();
+  VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates,
+                               VkImageTiling tiling,
+                               VkFormatFeatureFlags features);
 };
 }  // namespace vk1

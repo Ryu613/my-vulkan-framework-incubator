@@ -8,6 +8,7 @@ Pipeline::Pipeline(const LogicalDevice& logical_device, const PipelineConfig& pi
     : logical_device_(logical_device), pipeline_config_(pipeline_config) {
   switch (pipeline_config_.pipelineType) {
     case PipelineType::GraphicsPipeline:
+      createDescriptorSetLayout();
       createGraphicsPipeline();
       break;
     default:
@@ -18,6 +19,37 @@ Pipeline::Pipeline(const LogicalDevice& logical_device, const PipelineConfig& pi
 Pipeline::~Pipeline() {
   vkDestroyPipeline(logical_device_.getVkDevice(), vk_pipeline_, nullptr);
   vkDestroyPipelineLayout(logical_device_.getVkDevice(), vk_pipeline_layout_, nullptr);
+}
+
+void Pipeline::createDescriptorSetLayout() {
+  VkDescriptorSetLayoutBinding uboLayoutBinding{
+      .binding = 0,
+      .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+      .descriptorCount = 1,
+      .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
+      .pImmutableSamplers = nullptr,
+  };
+
+  VkDescriptorSetLayoutBinding samplerLayoutBinding{
+      .binding = 1,
+      .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+      .descriptorCount = 1,
+      .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
+      .pImmutableSamplers = nullptr,
+  };
+
+  std::array<VkDescriptorSetLayoutBinding, 2> bindings = {uboLayoutBinding, samplerLayoutBinding};
+
+  VkDescriptorSetLayoutCreateInfo layoutInfo{
+      .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+      .bindingCount = static_cast<uint32_t>(bindings.size()),
+      .pBindings = bindings.data(),
+  };
+
+  if (vkCreateDescriptorSetLayout(
+          logical_device_.getVkDevice(), &layoutInfo, nullptr, &vk_descriptor_set_layout_) != VK_SUCCESS) {
+    throw std::runtime_error("failed to create descriptor set layout!");
+  }
 }
 
 void Pipeline::createGraphicsPipeline() {

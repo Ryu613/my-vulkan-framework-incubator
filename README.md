@@ -1,6 +1,6 @@
 # My Vulkan Framework Incubator
 
-2025 startup/template vulkan project for learning purpose
+2025 startup/template vulkan project for personal learning purpose
 
 ## build requirement
 

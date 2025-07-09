@@ -30,11 +30,14 @@ class Pipeline final {
  private:
   const LogicalDevice& logical_device_;
   PipelineConfig pipeline_config_;
-  VkPipeline vk_pipeline_ = VK_NULL_HANDLE;
-  VkPipelineLayout vk_pipeline_layout_ = VK_NULL_HANDLE;
+  VkPipeline vk_pipeline_{VK_NULL_HANDLE};
+  VkPipelineLayout vk_pipeline_layout_{VK_NULL_HANDLE};
+
+  VkDescriptorSetLayout vk_descriptor_set_layout_{VK_NULL_HANDLE};
 
  private:
   void createGraphicsPipeline();
+  void createDescriptorSetLayout();
   VkShaderModule createShaderModule(std::string&& shader_code);
 };
 }  // namespace vk1

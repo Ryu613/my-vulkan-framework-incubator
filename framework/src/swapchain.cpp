@@ -53,12 +53,12 @@ Swapchain::Swapchain(const LogicalDevice& logical_device,
       VK_SUCCESS) {
     throw std::runtime_error("faield to create swapchain!");
   }
-
   vkGetSwapchainImagesKHR(logical_device_.getVkDevice(), vk_swapchain_, &imageCount, nullptr);
   images_.resize(imageCount);
   vkGetSwapchainImagesKHR(logical_device_.getVkDevice(), vk_swapchain_, &imageCount, images_.data());
+  image_views_.resize(images_.size());
 
-  createImageViews();
+  wrapSwapchainImages();
 
   createSyncObjects();
 }
@@ -138,8 +138,7 @@ VkExtent2D Swapchain::chooseExtent(VkExtent2D extent, const VkSurfaceCapabilitie
   }
 }
 
-void Swapchain::createImageViews() {
-  image_views_.resize(images_.size());
+void Swapchain::wrapSwapchainImages() {
   for (size_t i = 0; i < images_.size(); ++i) {
     VkImageViewCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;

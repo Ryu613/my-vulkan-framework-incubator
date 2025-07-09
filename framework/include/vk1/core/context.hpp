@@ -2,6 +2,7 @@
 // core
 #include "vk1/core/common.hpp"
 #include "vk1/core/frame_buffer.hpp"
+#include "vk1/core/image.hpp"
 #include "vk1/core/instance.hpp"
 #include "vk1/core/logical_device.hpp"
 #include "vk1/core/physical_device.hpp"
@@ -40,6 +41,8 @@ class Context final {
     return allocator_;
   }
 
+  std::shared_ptr<Image> createImage(const ImageConfig& config) const;
+
  private:
   ContextConfig config_;
   std::unique_ptr<Instance> instance_;
@@ -59,7 +62,19 @@ class Context final {
   void createSwapchain();
   void createRenderPass();
   void createGraphicsPipeline();
+  void createColorResources();
+  void createDepthResources();
   void createFramebuffers();
+  void createCommandPool();
+  void createTextureImage();
+  void createTextureImageView();
+  void createTextureSampler();
+  void loadModel();
+  void createVertexBuffer();
+  void createIndexBuffer();
+  void createUniformBuffers();
+  void createDescriptorPool();
+  void createDescriptorSets();
   void createCommandPoolAndBuffers();
 };
 }  // namespace vk1
