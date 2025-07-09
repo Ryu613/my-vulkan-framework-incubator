@@ -20,9 +20,9 @@ class Buffer final {
 
  private:
   const Context& context_;
-  VkDeviceSize size_;
-  VkBufferUsageFlags usage_;
-  VmaAllocationCreateInfo vma_allocation_create_info_;
+  VkDeviceSize size_{};
+  VkBufferUsageFlags usage_{};
+  VmaAllocationCreateInfo vma_allocation_create_info_{};
   VmaAllocation vma_allocation_ = nullptr;
   VmaAllocationInfo vma_allocation_info{};
   VkBuffer vk_buffer_{VK_NULL_HANDLE};
