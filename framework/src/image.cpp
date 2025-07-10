@@ -20,14 +20,6 @@ Image::Image(const Context& context, const ImageConfig& image_config)
       .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
   };
 
-  Image::~Image() {
-    const auto& device = context_.getLogicalDevice().getVkDevice();
-    vkDestroyImageView(device, vk_image_view_, nullptr);
-    if (owns_vk_image_) {
-      vmaDestroyImage(context_.getAllocator(), vk_image_, vma_allocation_);
-    }
-  }
-
   const VmaAllocationCreateInfo allocCreateInfo{
       .flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
       .usage = image_config_.properties & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
@@ -58,6 +50,14 @@ Image::Image(const Context& context, const ImageConfig& image_config)
   }
 
   vk_image_view_ = createImageView(vk_image_, image_config_.format, aspectMask, image_config_.mipLevels);
+}
+
+Image::~Image() {
+  const auto& device = context_.getLogicalDevice().getVkDevice();
+  vkDestroyImageView(device, vk_image_view_, nullptr);
+  if (owns_vk_image_) {
+    vmaDestroyImage(context_.getAllocator(), vk_image_, vma_allocation_);
+  }
 }
 
 VkImageView Image::createImageView(VkImage image,
