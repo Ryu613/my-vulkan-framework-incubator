@@ -21,8 +21,8 @@ target_link_libraries(vktutorial
 )
 target_include_directories(vktutorial PRIVATE ${Vulkan_INCLUDE_DIRS})
 
-# add_executable(test_vk1 test/test_vk1.cpp)
-# target_link_libraries(test_vk1 PRIVATE vk1)
+add_executable(test_vk1 test/test_vk1.cpp)
+target_link_libraries(test_vk1 PRIVATE vk1)
 
 add_executable(mvcook test/mvcook.cpp)
 target_link_libraries(mvcook 

@@ -68,7 +68,6 @@ void Context::initVulkan() {
   // create frame buffers
   uint32_t imageCount = swapchain_->getImageCount();
   const auto& imageViews = swapchain_->getImageViews();
-  auto imageExtent = swapchain_->getImageExtent();
   frame_buffers_.reserve(imageCount);
   for (uint32_t i = 0; i < imageCount; ++i) {
     std::vector<VkImageView> attachments;
