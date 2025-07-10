@@ -9,7 +9,7 @@ FrameBuffer::FrameBuffer(const LogicalDevice& logical_device,
   VkFramebufferCreateInfo framebufferInfo{
       .sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
       .renderPass = render_pass,
-      .attachmentCount = 1,
+      .attachmentCount = static_cast<uint32_t>(attachments.size()),
       .pAttachments = attachments.data(),
       .width = extent.width,
       .height = extent.height,

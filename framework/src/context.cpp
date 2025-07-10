@@ -43,9 +43,42 @@ void Context::initVulkan() {
   createRenderPass();
   createCommandPoolAndBuffers();
   createGraphicsPipeline();
-  createColorResources();
-  createDepthResources();
-  createFramebuffers();
+  // create color & depth resource
+  const auto& swapchainFormat = swapchain_->getSurfaceFormat();
+  const auto& imageExtent = swapchain_->getImageExtent();
+  auto colorImage = createImage({
+      .width = imageExtent.width,
+      .height = imageExtent.height,
+      .mipLevels = 1,
+      .format = swapchainFormat,
+      .tiling = VK_IMAGE_TILING_OPTIMAL,
+      .usage = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+      .properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+  });
+
+  auto depthImage = createImage({
+      .width = imageExtent.width,
+      .height = imageExtent.height,
+      .mipLevels = 1,
+      .format = VK_FORMAT_D24_UNORM_S8_UINT,
+      .tiling = VK_IMAGE_TILING_OPTIMAL,
+      .usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+      .properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+  });
+  // create frame buffers
+  uint32_t imageCount = swapchain_->getImageCount();
+  const auto& imageViews = swapchain_->getImageViews();
+  auto imageExtent = swapchain_->getImageExtent();
+  frame_buffers_.reserve(imageCount);
+  for (uint32_t i = 0; i < imageCount; ++i) {
+    std::vector<VkImageView> attachments;
+    attachments.push_back(colorImage->getVkImageView());
+    attachments.push_back(depthImage->getVkImageView());
+    attachments.push_back(imageViews[i]);
+    auto frameBuffer = std::make_unique<FrameBuffer>(
+        *logical_device_, render_pass_->getVkRenderPass(), imageExtent, attachments);
+    frame_buffers_.push_back(std::move(frameBuffer));
+  }
 }
 
 void Context::createMemoryAllocator() {
@@ -93,25 +126,6 @@ void Context::createGraphicsPipeline() {
   logical_device_->createPipeline(pipeConfig);
 }
 
-void Context::createColorResources() {
-  this->createTextureImage()
-}
-
-void Context::createDepthResources() {}
-
-void Context::createFramebuffers() {
-  uint32_t imageCount = swapchain_->getImageCount();
-  const auto& imageViews = swapchain_->getImageViews();
-  auto imageExtent = swapchain_->getImageExtent();
-  frame_buffers_.reserve(imageCount);
-  for (uint32_t i = 0; i < imageCount; ++i) {
-    std::vector<VkImageView> attachments;
-    attachments.push_back(imageViews[i]);
-    auto frameBuffer = std::make_unique<FrameBuffer>(
-        *logical_device_, render_pass_->getVkRenderPass(), imageExtent, attachments);
-    frame_buffers_.push_back(std::move(frameBuffer));
-  }
-}
 void Context::createCommandPoolAndBuffers() {
   uint32_t graphicsQueueFamilyIndex =
       logical_device_->getQueueFamilyInfo().graphics_queue_family_index.value();
@@ -158,5 +172,9 @@ void Context::drawFrame() {
   const auto submitInfo = swapchain_->createSubmitInfo(cmdBuffer, &flags);
   logical_device_->submitCommand(cmdBuffer, submitInfo);
   swapchain_->present(logical_device_->getPresentQueue());
+}
+
+std::shared_ptr<Image> Context::createImage(const ImageConfig& config) const {
+  return std::make_shared<Image>(*this, config);
 }
 }  // namespace vk1

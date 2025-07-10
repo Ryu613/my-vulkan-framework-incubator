@@ -43,6 +43,14 @@ class Context final {
 
   std::shared_ptr<Image> createImage(const ImageConfig& config) const;
 
+  inline const LogicalDevice& getLogicalDevice() const {
+    return *logical_device_;
+  }
+
+  inline const Swapchain& getSwapchain() const {
+    return *swapchain_;
+  }
+
  private:
   ContextConfig config_;
   std::unique_ptr<Instance> instance_;
@@ -62,9 +70,6 @@ class Context final {
   void createSwapchain();
   void createRenderPass();
   void createGraphicsPipeline();
-  void createColorResources();
-  void createDepthResources();
-  void createFramebuffers();
   void createCommandPool();
   void createTextureImage();
   void createTextureImageView();

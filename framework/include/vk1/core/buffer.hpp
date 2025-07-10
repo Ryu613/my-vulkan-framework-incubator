@@ -26,5 +26,5 @@ class Buffer final {
   VmaAllocation vma_allocation_ = nullptr;
   VmaAllocationInfo vma_allocation_info{};
   VkBuffer vk_buffer_{VK_NULL_HANDLE};
-}
+};
 }  // namespace vk1
