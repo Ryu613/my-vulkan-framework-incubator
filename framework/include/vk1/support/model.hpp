@@ -17,5 +17,6 @@ struct Mesh {
 
 struct Model {
   std::vector<Mesh> meshes_;
+  uint32_t vertices_count_{0};
 };
 }  // namespace vk1
