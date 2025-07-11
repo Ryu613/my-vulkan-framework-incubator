@@ -1,5 +1,6 @@
 #include "vk1/core/logical_device.hpp"
 
+#include "vk1/core/sampler.hpp"
 #include "vk1/core/swapchain.hpp"
 
 namespace vk1 {
@@ -151,5 +152,9 @@ void LogicalDevice::submitCommand(VkCommandBuffer command_buffer, VkSubmitInfo s
   current_command_buffer_index_ =
       (current_command_buffer_index_ + 1) % static_cast<uint32_t>(command_buffers_.size());
   current_fence_index_ = (current_fence_index_ + 1) % commands_in_flight_;
+}
+
+std::unique_ptr<Sampler> LogicalDevice::createSampler() {
+  return std::make_unique<Sampler>(*this);
 }
 }  // namespace vk1

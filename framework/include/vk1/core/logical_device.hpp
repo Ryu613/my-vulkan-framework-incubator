@@ -6,6 +6,7 @@
 
 namespace vk1 {
 class Swapchain;
+class Sampler;
 struct QueueFamilyInfo {
   std::optional<uint32_t> graphics_queue_family_index;
   std::optional<uint32_t> present_queue_family_index;
@@ -70,6 +71,8 @@ class LogicalDevice final {
   void endCommandBuffer(VkCommandBuffer command_buffer);
 
   void submitCommand(VkCommandBuffer command_buffer, VkSubmitInfo submit_info);
+
+  std::unique_ptr<Sampler> createSampler();
 
  private:
   const PhysicalDevice& physical_device_;

@@ -20,8 +20,10 @@ struct ImageConfig {
 
 class Image final {
  public:
-  MOVABLE_ONLY(Image);
+  NO_COPY_MOVE(Image);
+
   explicit Image(const Context& context, const ImageConfig& image_config);
+
   ~Image();
 
  public:

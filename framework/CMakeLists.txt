@@ -9,6 +9,7 @@ target_link_libraries(vk1
         glfw glm::glm-header-only
         tinyobjloader::tinyobjloader
         zetools::utils
+        tinygltf
 )
 target_include_directories(vk1 PUBLIC ${Vulkan_INCLUDE_DIRS} ${Stb_INCLUDE_DIR} include)
 

@@ -78,6 +78,8 @@ void Context::initVulkan() {
         *logical_device_, render_pass_->getVkRenderPass(), imageExtent, attachments);
     frame_buffers_.push_back(std::move(frameBuffer));
   }
+  // create sampler
+  auto sampler = logical_device_->createSampler();
 }
 
 void Context::createMemoryAllocator() {
