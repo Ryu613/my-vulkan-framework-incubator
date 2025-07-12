@@ -44,4 +44,15 @@ inline SupportInfoBundle isSupported(const std::vector<T>& available,
   result.isAllSupported = true;
   return result;
 }
+
+template <class T>
+inline uint32_t castU32(T value) {
+  static_assert(std::is_arithmetic<T>::value, "T must be numeric");
+
+  if (static_cast<uintmax_t>(value) > static_cast<uintmax_t>(std::numeric_limits<uint32_t>::max())) {
+    throw std::runtime_error("castU32() failed, value is too big to be converted to uint32_t");
+  }
+
+  return static_cast<uint32_t>(value);
+}
 }  // namespace vk1::util

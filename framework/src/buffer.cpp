@@ -3,14 +3,17 @@
 #include "vk1/core/context.hpp"
 
 namespace vk1 {
-Buffer::Buffer(const Context& context, VkDeviceSize size, VkBufferUsageFlags usage)
-    : context_(context), size_(size), usage_(usage) {
+Buffer::Buffer(const Context& context,
+               VkDeviceSize size,
+               VkBufferUsageFlags buffer_usage,
+               VmaMemoryUsage mem_usage)
+    : context_(context), size_(size), usage_(buffer_usage) {
   VkBufferCreateInfo createInfo = {
       .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
       .pNext = nullptr,
       .flags = {},
       .size = size_,
-      .usage = usage,
+      .usage = buffer_usage,
       .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
       .queueFamilyIndexCount = {},
       .pQueueFamilyIndices = {},
@@ -28,4 +31,6 @@ Buffer::Buffer(const Context& context, VkDeviceSize size, VkBufferUsageFlags usa
 
   vmaGetAllocationInfo(allocator, vma_allocation_, &vma_allocation_info);
 }
+
+Buffer::~Buffer() {}
 }  // namespace vk1

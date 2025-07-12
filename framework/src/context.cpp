@@ -2,6 +2,9 @@
 #define VMA_IMPLEMENTATION
 #include "vk1/core/context.hpp"
 
+#include "vk1/core/buffer.hpp"
+#include "vk1/support/gltf_loader.hpp"
+#include "vk1/support/model.hpp"
 #include "ze/utils/filesystem.hpp"
 
 namespace vk1 {
@@ -80,6 +83,11 @@ void Context::initVulkan() {
   }
   // create sampler
   auto sampler = logical_device_->createSampler();
+  // load model
+  GLTFLoader gltfLoader;
+  auto model = gltfLoader.loadModel("models/aaaa.gltf");
+  // create vertex buffer
+  auto vertexBuffer = std::make_unique<Buffer>(*this, model->vertices_count_ * sizeof(Vertex), )
 }
 
 void Context::createMemoryAllocator() {

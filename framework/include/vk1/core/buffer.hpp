@@ -9,7 +9,10 @@ class Buffer final {
  public:
   NO_COPY_MOVE(Buffer);
 
-  explicit Buffer(const Context& context, VkDeviceSize size, VkBufferUsageFlags usage);
+  explicit Buffer(const Context& context,
+                  VkDeviceSize size,
+                  VkBufferUsageFlags buffer_usage,
+                  VmaMemoryUsage mem_usage);
 
   ~Buffer();
 
