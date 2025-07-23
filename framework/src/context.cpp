@@ -87,7 +87,13 @@ void Context::initVulkan() {
   GLTFLoader gltfLoader;
   auto model = gltfLoader.loadModel("models/aaaa.gltf");
   // create vertex buffer
-  auto vertexBuffer = std::make_unique<Buffer>(*this, model->vertices_count_ * sizeof(Vertex), )
+  auto vertexBuffer =
+      std::make_unique<Buffer>(*this,
+                               model->vertices_count_ * sizeof(Vertex),
+                               VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                               VMA_MEMORY_USAGE_GPU_ONLY);
+  model->vertex_buffer_ = std::move(vertexBuffer);
+  model->vertex_buffer_->copyDataToBuffer();
 }
 
 void Context::createMemoryAllocator() {

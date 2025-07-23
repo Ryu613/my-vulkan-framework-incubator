@@ -46,7 +46,7 @@ inline SupportInfoBundle isSupported(const std::vector<T>& available,
 }
 
 template <class T>
-inline uint32_t castU32(T value) {
+inline uint32_t castUInt32(T value) {
   static_assert(std::is_arithmetic<T>::value, "T must be numeric");
 
   if (static_cast<uintmax_t>(value) > static_cast<uintmax_t>(std::numeric_limits<uint32_t>::max())) {

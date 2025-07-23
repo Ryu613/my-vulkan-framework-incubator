@@ -21,6 +21,10 @@ class Buffer final {
     return size_;
   }
 
+  void uploadToGPU(VkDeviceSize size, VkDeviceSize offset) const;
+
+  void copyDataToBuffer(const void* data, size_t size) const;
+
  private:
   const Context& context_;
   VkDeviceSize size_{};
@@ -29,5 +33,6 @@ class Buffer final {
   VmaAllocation vma_allocation_ = nullptr;
   VmaAllocationInfo vma_allocation_info{};
   VkBuffer vk_buffer_{VK_NULL_HANDLE};
+  mutable void* mapped_memory_ = nullptr;
 };
 }  // namespace vk1

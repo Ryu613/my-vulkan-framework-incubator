@@ -137,7 +137,7 @@ inline std::vector<uint8_t> getAttributeData(const tinygltf::Model* model, uint3
 inline std::vector<uint8_t> convertUnderlyingDataStride(const std::vector<uint8_t>& src_data,
                                                         uint32_t src_stride,
                                                         uint32_t dst_stride) {
-  auto elem_count = util::castU32(src_data.size()) / src_stride;
+  auto elem_count = util::castUInt32(src_data.size()) / src_stride;
 
   std::vector<uint8_t> result(elem_count * dst_stride);
 
@@ -216,7 +216,7 @@ std::unique_ptr<Model> GLTFLoader::loadModel(const std::string& file_path) {
   }
   // vertex indices
   if (gltfPrimitive.indices >= 0) {
-    model->vertex_indices_count_ = util::castU32(gltf_model_.accessors[gltfPrimitive.indices].count);
+    model->vertex_indices_count_ = util::castUInt32(gltf_model_.accessors[gltfPrimitive.indices].count);
 
     auto indicesFormat = getAttributeFormat(&gltf_model_, gltfPrimitive.indices);
     auto indicesData = getAttributeData(&gltf_model_, gltfPrimitive.indices);

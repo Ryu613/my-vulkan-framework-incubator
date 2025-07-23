@@ -32,5 +32,21 @@ Buffer::Buffer(const Context& context,
   vmaGetAllocationInfo(allocator, vma_allocation_, &vma_allocation_info);
 }
 
-Buffer::~Buffer() {}
+Buffer::~Buffer() {
+  if (mapped_memory_) {
+    vmaUnmapMemory(context_.getAllocator(), vma_allocation_);
+  }
+}
+
+void Buffer::uploadToGPU(VkDeviceSize size, VkDeviceSize offset) const {}
+
+void Buffer::copyDataToBuffer(const void* data, size_t size) const {
+  if (!mapped_memory_) {
+    auto result = vmaMapMemory(context_.getAllocator(), vma_allocation_, &mapped_memory_);
+    if (result != VK_SUCCESS) {
+      throw std::runtime_error("buffer copy data failed!");
+    }
+  }
+  std::memcpy(mapped_memory_, data, size);
+}
 }  // namespace vk1
