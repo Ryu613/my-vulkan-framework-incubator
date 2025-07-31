@@ -1,38 +1,29 @@
 #pragma once
 
 #include "vk1/core/common.hpp"
-#include "vma/vk_mem_alloc.h"
+#include "vk1/core/stage_pool.hpp"
 
 namespace vk1 {
-class Context;
-class Buffer final {
+class Buffer {
  public:
-  NO_COPY_MOVE(Buffer);
-
-  explicit Buffer(const Context& context,
-                  VkDeviceSize size,
-                  VkBufferUsageFlags buffer_usage,
-                  VmaMemoryUsage mem_usage);
-
+  explicit Buffer(VmaAllocator allocator,
+                  StagePool& stage_pool,
+                  VkBufferUsageFlags usage,
+                  uint32_t buffer_size);
   ~Buffer();
 
  public:
-  inline VkDeviceSize getSize() const {
-    return size_;
+  void uploadToGpu(VkCommandBuffer cmd_buf, const void* cpu_data, uint32_t data_size, uint32_t offset);
+
+  inline VkBuffer getVkBuffer() const {
+    return vk_buffer_;
   }
 
-  void uploadToGPU(VkDeviceSize size, VkDeviceSize offset) const;
-
-  void copyDataToBuffer(const void* data, size_t size) const;
-
  private:
-  const Context& context_;
-  VkDeviceSize size_{};
-  VkBufferUsageFlags usage_{};
-  VmaAllocationCreateInfo vma_allocation_create_info_{};
-  VmaAllocation vma_allocation_ = nullptr;
-  VmaAllocationInfo vma_allocation_info{};
+  VmaAllocator vma_allocator_{VK_NULL_HANDLE};
+  StagePool& stage_pool_;
+  VmaAllocation vma_allocation_{VK_NULL_HANDLE};
   VkBuffer vk_buffer_{VK_NULL_HANDLE};
-  mutable void* mapped_memory_ = nullptr;
+  VkBufferUsageFlags usage_{};
 };
 }  // namespace vk1

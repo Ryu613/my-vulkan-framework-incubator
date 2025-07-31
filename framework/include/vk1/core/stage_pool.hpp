@@ -5,11 +5,12 @@
 
 namespace vk1 {
 struct Stage {
-  VmaAllocation memory;
-  VkBuffer buffer;
-  uint32_t capacity;
+  VmaAllocation memory{VK_NULL_HANDLE};
+  VkBuffer buffer{VK_NULL_HANDLE};
+  uint32_t capacity{0};
+  mutable uint64_t last_frame_count{0};
 };
-// manage staging buffer in pool to reuse for optimizing performance
+// manage staging buffer in pool to optimizing performance
 class StagePool {
  public:
   StagePool(VmaAllocator allocator);
@@ -22,7 +23,11 @@ class StagePool {
   void terminate() noexcept;
 
  private:
+  // use for gc to calculate minimum gc time
+  static constexpr uint64_t TIME_BEFORE_EVICTION = MAX_IN_FLIGHT_COMMAND_BUFFERS;
   VmaAllocator vma_allocator_;
   std::multimap<uint32_t, const Stage*> free_stages_;
+  std::unordered_set<const Stage*> used_stages_;
+  uint64_t current_frame_count_{0};
 };
 }  // namespace vk1
