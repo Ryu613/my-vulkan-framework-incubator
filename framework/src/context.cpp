@@ -1,11 +1,14 @@
-#define VOLK_IMPLEMENTATION
 #define VMA_IMPLEMENTATION
+#define VMA_STATIC_VULKAN_FUNCTIONS 0
+#define VMA_DYNAMIC_VULKAN_FUNCTIONS 1
 #include "vk1/core/context.hpp"
 
 #include "vk1/core/buffer.hpp"
 #include "vk1/support/gltf_loader.hpp"
 #include "vk1/support/model.hpp"
 #include "ze/utils/filesystem.hpp"
+
+VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
 namespace vk1 {
 
@@ -31,16 +34,23 @@ Context::~Context() {
 }
 
 void Context::initVulkan() {
+  static vk::DynamicLoader dl;
+  VULKAN_HPP_DEFAULT_DISPATCHER.init(dl.getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr"));
   // create instance
   instance_ = std::make_unique<Instance>(
       config_.app_name, config_.required_layers, config_.required_instance_extensions, config_.is_debug);
+  VULKAN_HPP_DEFAULT_DISPATCHER.init(instance_->getVkInstance());
   // create surface
   surface_ = config_.window->createSurface(*instance_);
+  if (!surface_) {
+    throw std::runtime_error("failed to  create window surface");
+  }
   // choose physical device
   const auto& suitablePhysicalDevice =
       instance_->chooseSuitablePhysicalDevice(surface_, config_.required_device_extensions);
   // create logical device
   logical_device_ = std::make_unique<LogicalDevice>(suitablePhysicalDevice, surface_);
+  VULKAN_HPP_DEFAULT_DISPATCHER.init(logical_device_->getVkDevice());
   createMemoryAllocator();
   createSwapchain();
   createRenderPass();
@@ -98,20 +108,12 @@ void Context::initVulkan() {
 void Context::createMemoryAllocator() {
   const uint32_t apiVersion = VK_API_VERSION_1_3;
   const VmaVulkanFunctions vulkanFunctions = {
-      .vkGetInstanceProcAddr = vkGetInstanceProcAddr,
-      .vkGetDeviceProcAddr = vkGetDeviceProcAddr,
-#if VMA_VULKAN_VERSION >= 1003000
-      .vkGetDeviceBufferMemoryRequirements = vkGetDeviceBufferMemoryRequirements,
-      .vkGetDeviceImageMemoryRequirements = vkGetDeviceImageMemoryRequirements,
-#endif
+      .vkGetInstanceProcAddr = VULKAN_HPP_DEFAULT_DISPATCHER.vkGetInstanceProcAddr,
+      .vkGetDeviceProcAddr = VULKAN_HPP_DEFAULT_DISPATCHER.vkGetDeviceProcAddr,
   };
 
   const VmaAllocatorCreateInfo allocInfo = {
-      .physicalDevice = logical_device_->getPhysicalDevice().getVkPhysicalDevice(),
-      .device = logical_device_->getVkDevice(),
       .pVulkanFunctions = &vulkanFunctions,
-      .instance = instance_->getVkInstance(),
-      .vulkanApiVersion = apiVersion,
   };
   vmaCreateAllocator(&allocInfo, &allocator_);
 }

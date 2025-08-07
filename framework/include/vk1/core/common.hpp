@@ -9,13 +9,8 @@
 #endif
 
 #define VK_NO_PROTOTYPES
-#include <Volk/volk.h>
-
-#ifdef _WIN32
-#include <vulkan/vk_enum_string_helper.h>
-#endif
-
 #include "glm/glm.hpp"
+#include "vulkan/vulkan.hpp"
 
 namespace vk1 {
 using OptionalExtensions = std::unordered_map<const char*, bool>;

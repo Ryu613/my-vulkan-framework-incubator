@@ -4,23 +4,21 @@
 #include "vk1/core/swapchain.hpp"
 
 namespace vk1 {
-LogicalDevice::LogicalDevice(const PhysicalDevice& physical_device, VkSurfaceKHR surface)
+LogicalDevice::LogicalDevice(const PhysicalDevice& physical_device, vk::SurfaceKHR surface)
     : physical_device_(physical_device), queue_family_info_(findQueueFamilyIndex(physical_device, surface)) {
-  std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+  std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
   float queuePriority = 1.0f;
-  for (uint32_t queueFamily : queue_family_info_.getIndices()) {
-    VkDeviceQueueCreateInfo queueCreateInfo{
-        .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-        .queueFamilyIndex = queueFamily,
+  for (uint32_t index : queue_family_info_.getIndices()) {
+    vk::DeviceQueueCreateInfo queueCreateInfo{
+        .queueFamilyIndex = index,
         .queueCount = 1,
         .pQueuePriorities = &queuePriority,
     };
     queueCreateInfos.push_back(queueCreateInfo);
   }
   const auto& instance = getPhysicalDevice().getInstance();
-  VkPhysicalDeviceFeatures deviceFeatures{};
-  VkDeviceCreateInfo createInfo{
-      .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+  vk::PhysicalDeviceFeatures deviceFeatures;
+  vk::DeviceCreateInfo createInfo{
       .queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size()),
       .pQueueCreateInfos = queueCreateInfos.data(),
       .enabledLayerCount = static_cast<uint32_t>(instance.getEnabledlayers().size()),
@@ -29,14 +27,15 @@ LogicalDevice::LogicalDevice(const PhysicalDevice& physical_device, VkSurfaceKHR
       .ppEnabledExtensionNames = physical_device.getEnabledExtensions().data(),
       .pEnabledFeatures = &deviceFeatures,
   };
-
-  if (vkCreateDevice(physical_device.getVkPhysicalDevice(), &createInfo, nullptr, &vk_device_) !=
-      VK_SUCCESS) {
-    throw std::runtime_error("failed to create logical device!");
-  }
-  volkLoadDevice(vk_device_);
-  vkGetDeviceQueue(vk_device_, queue_family_info_.graphics_queue_family_index.value(), 0, &graphics_queue_);
-  vkGetDeviceQueue(vk_device_, queue_family_info_.present_queue_family_index.value(), 0, &present_queue_);
+  // create device
+  vk_device_ = physical_device_.getVkPhysicalDevice().createDevice(createInfo);
+  // get queue
+  graphics_queue_ = vk_device_.getQueue(queue_family_info_.graphics_queue_family_index.value(), 0);
+  present_queue_ = vk_device_.getQueue(queue_family_info_.present_queue_family_index.value(), 0);
+  // create command pool
+  command_pool_ =
+      std::make_unique<CommandPool>(*this, queue_family_info_.graphics_queue_family_index.value());
+  // create fence pool
 }
 
 LogicalDevice::~LogicalDevice() {
@@ -49,17 +48,15 @@ LogicalDevice::~LogicalDevice() {
 }
 
 QueueFamilyInfo LogicalDevice::findQueueFamilyIndex(const PhysicalDevice& physical_device,
-                                                    VkSurfaceKHR surface) {
+                                                    vk::SurfaceKHR surface) {
   const auto& queueFamilyProperties = physical_device.getQueueFamilies();
   QueueFamilyInfo res{};
   uint32_t index = 0;
   for (const auto& queueFamily : queueFamilyProperties) {
-    if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+    if (queueFamily.queueFlags & vk::QueueFlagBits::eGraphics) {
       res.graphics_queue_family_index = index;
     }
-    VkBool32 presentSupport = false;
-    vkGetPhysicalDeviceSurfaceSupportKHR(
-        physical_device.getVkPhysicalDevice(), index, surface, &presentSupport);
+    auto presentSupport = physical_device.getVkPhysicalDevice().getSurfaceSupportKHR(index, surface);
     if (presentSupport) {
       res.present_queue_family_index = index;
     }

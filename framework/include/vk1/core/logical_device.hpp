@@ -7,6 +7,8 @@
 namespace vk1 {
 class Swapchain;
 class Sampler;
+class CommandPool;
+class FencePool;
 struct QueueFamilyInfo {
   std::optional<uint32_t> graphics_queue_family_index;
   std::optional<uint32_t> present_queue_family_index;
@@ -31,7 +33,7 @@ class LogicalDevice final {
  public:
   NO_COPY_MOVE(LogicalDevice);
 
-  explicit LogicalDevice(const PhysicalDevice& physical_device, VkSurfaceKHR surface);
+  explicit LogicalDevice(const PhysicalDevice& physical_device, vk::SurfaceKHR surface);
 
   ~LogicalDevice();
 
@@ -40,7 +42,7 @@ class LogicalDevice final {
     return physical_device_;
   }
 
-  inline const VkDevice& getVkDevice() const {
+  inline const vk::Device& getVkDevice() const {
     return vk_device_;
   }
 
@@ -76,11 +78,13 @@ class LogicalDevice final {
 
  private:
   const PhysicalDevice& physical_device_;
-  VkDevice vk_device_;
+  vk::Device vk_device_;
+  std::unique_ptr<CommandPool> command_pool_;
+  std::unique_ptr<FencePool> fence_pool_;
+  // FIXME: add debug utils
   QueueFamilyInfo queue_family_info_;
-  VkQueue graphics_queue_;
-  VkQueue present_queue_;
-  VkCommandPool command_pool_;
+  vk::Queue graphics_queue_;
+  vk::Queue present_queue_;
   std::vector<VkCommandBuffer> command_buffers_;
   std::unique_ptr<Pipeline> pipeline_;
   std::vector<VkFence> fences_;
@@ -89,7 +93,7 @@ class LogicalDevice final {
   uint32_t commands_in_flight_ = 2;
 
  private:
-  QueueFamilyInfo findQueueFamilyIndex(const PhysicalDevice& physical_device, VkSurfaceKHR surface);
+  QueueFamilyInfo findQueueFamilyIndex(const PhysicalDevice& physical_device, vk::SurfaceKHR surface);
   void recordCommandBuffer();
 };
 

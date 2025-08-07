@@ -15,7 +15,7 @@ class Instance final {
   ~Instance();
 
  public:
-  inline const VkInstance& getVkInstance() const {
+  inline const vk::Instance& getVkInstance() const {
     return vk_instance_;
   }
 
@@ -33,16 +33,16 @@ class Instance final {
  private:
   std::string name_;
   bool is_debug_ = false;
-  VkInstance vk_instance_{VK_NULL_HANDLE};
+  vk::Instance vk_instance_;
   std::vector<const char*> enabled_extensions_;
   std::vector<const char*> enabled_layers_;
-  VkDebugUtilsMessengerEXT debug_utils_messenger_{VK_NULL_HANDLE};
+  vk::DebugUtilsMessengerEXT debug_utils_messenger_;
   std::vector<std::unique_ptr<PhysicalDevice>> physical_devices_;
 
  private:
   bool checkLayerSupport(OptionalLayers& required_layers, bool is_debug);
   bool checkInstanceExtensionSupport(OptionalExtensions& required_extensions, bool is_debug);
-  void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& create_info);
+  void populateDebugMessengerCreateInfo(vk::DebugUtilsMessengerCreateInfoEXT& create_info);
   void getAllPhysicalDevices();
 
  private:

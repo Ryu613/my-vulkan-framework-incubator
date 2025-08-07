@@ -7,34 +7,13 @@
 
 namespace vk1 {
 namespace {
-VkResult createDebugutilsMessengerExt(VkInstance instance,
-                                      const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
-                                      const VkAllocationCallbacks* pAllocator,
-                                      VkDebugUtilsMessengerEXT* pDebugMessenger) {
-  auto func =
-      (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
-  if (func != nullptr) {
-    return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
-  } else {
-    return VK_ERROR_EXTENSION_NOT_PRESENT;
-  }
-}
 VKAPI_ATTR VkBool32 VKAPI_CALL
-debugMessengerCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                       VkDebugUtilsMessageTypeFlagsEXT messageType,
-                       const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+debugMessengerCallback(vk::DebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+                       vk::DebugUtilsMessageTypeFlagsEXT messageType,
+                       const vk::DebugUtilsMessengerCallbackDataEXT* pCallbackData,
                        void* pUserData) {
   std::cerr << "validation layer: " << pCallbackData->pMessage << "\n";
   return VK_FALSE;
-}
-void destroyDebugUtilsMessengerEXT(VkInstance instance,
-                                   VkDebugUtilsMessengerEXT debugMessenger,
-                                   const VkAllocationCallbacks* pAllocator) {
-  auto func =
-      (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
-  if (func != nullptr) {
-    func(instance, debugMessenger, pAllocator);
-  }
 }
 }  // namespace
 
@@ -43,24 +22,19 @@ Instance::Instance(std::string name,
                    OptionalExtensions& required_extensions,
                    bool is_debug)
     : name_(name), is_debug_(is_debug) {
-  if (volkInitialize()) {
-    throw std::runtime_error("failed to initialize volk!");
-  }
   if (!checkLayerSupport(required_layers, is_debug) ||
       !checkInstanceExtensionSupport(required_extensions, is_debug)) {
     throw std::runtime_error("layers or extensions are not all supported!");
   }
-  VkApplicationInfo appInfo{
-      .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
+  vk::ApplicationInfo appInfo{
       .pApplicationName = name_.c_str(),
-      .applicationVersion = VK_MAKE_VERSION(1, 0, 0),
       .pEngineName = "No Engine",
-      .engineVersion = VK_MAKE_VERSION(1, 0, 0),
       .apiVersion = VK_API_VERSION_1_3,
+      .applicationVersion = VK_MAKE_VERSION(1, 0, 0),
+      .engineVersion = VK_MAKE_VERSION(1, 0, 0),
   };
 
-  VkInstanceCreateInfo createInfo{
-      .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+  vk::InstanceCreateInfo createInfo{
       .pApplicationInfo = &appInfo,
       .enabledLayerCount = static_cast<uint32_t>(enabled_layers_.size()),
       .ppEnabledLayerNames = enabled_layers_.data(),
@@ -68,32 +42,27 @@ Instance::Instance(std::string name,
       .ppEnabledExtensionNames = enabled_extensions_.data(),
   };
 
-  VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
+  vk::DebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
   if (is_debug_) {
     populateDebugMessengerCreateInfo(debugCreateInfo);
     createInfo.pNext = &debugCreateInfo;
   } else {
     createInfo.pNext = nullptr;
   }
-  if (vkCreateInstance(&createInfo, nullptr, &vk_instance_) != VK_SUCCESS) {
-    throw std::runtime_error("failed to create instance!");
-  }
+
+  vk_instance_ = vk::createInstance(createInfo);
   if (is_debug_) {
-    VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo2;
+    vk::DebugUtilsMessengerCreateInfoEXT debugCreateInfo2;
     populateDebugMessengerCreateInfo(debugCreateInfo2);
-    if (createDebugutilsMessengerExt(vk_instance_, &debugCreateInfo2, nullptr, &debug_utils_messenger_) !=
-        VK_SUCCESS) {
-      throw std::runtime_error("failed to setup debug messenger!");
-    }
+    debug_utils_messenger_ = vk_instance_.createDebugUtilsMessengerEXT(debugCreateInfo2);
   }
-  volkLoadInstance(vk_instance_);
   getAllPhysicalDevices();
 }
 Instance::~Instance() {
   if (is_debug_) {
-    destroyDebugUtilsMessengerEXT(vk_instance_, debug_utils_messenger_, nullptr);
+    vk_instance_.destroyDebugUtilsMessengerEXT(debug_utils_messenger_);
   }
-  vkDestroyInstance(vk_instance_, nullptr);
+  vk_instance_.destroy();
 }
 
 bool Instance::checkLayerSupport(OptionalLayers& required_layers, bool is_debug) {
@@ -103,13 +72,10 @@ bool Instance::checkLayerSupport(OptionalLayers& required_layers, bool is_debug)
     }
     required_layers.insert(DEFAULT_DEBUG_LAYERS.begin(), DEFAULT_DEBUG_LAYERS.end());
   }
-  uint32_t layerCount;
-  vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-  std::vector<VkLayerProperties> availableLayers(layerCount);
-  vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+  std::vector<vk::LayerProperties> availableLayers = vk::enumerateInstanceLayerProperties();
   // check if layers are all available & fill enabled_layers
-  auto [supported, enabledNames] = util::isSupported<VkLayerProperties>(
-      availableLayers, required_layers, [](const VkLayerProperties& p) { return p.layerName; });
+  auto [supported, enabledNames] = util::isSupported<vk::LayerProperties>(
+      availableLayers, required_layers, [](const vk::LayerProperties& p) { return p.layerName; });
   if (supported) {
     enabled_layers_.insert(enabled_layers_.end(), enabledNames.begin(), enabledNames.end());
   }
@@ -124,41 +90,32 @@ bool Instance::checkInstanceExtensionSupport(OptionalExtensions& required_extens
                                  DEFAULT_DEBUG_INSTANCE_EXTENSIONS.end());
     }
   }
-  uint32_t extensionCount = 0;
-  vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-  std::vector<VkExtensionProperties> extensions(extensionCount);
-  vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
-  auto [supported, enabledNames] = util::isSupported<VkExtensionProperties>(
-      extensions, required_extensions, [](const VkExtensionProperties& p) { return p.extensionName; });
+  std::vector<vk::ExtensionProperties> extensions = vk::enumerateInstanceExtensionProperties();
+  auto [supported, enabledNames] = util::isSupported<vk::ExtensionProperties>(
+      extensions, required_extensions, [](const vk::ExtensionProperties& p) { return p.extensionName; });
   if (supported) {
     enabled_extensions_.insert(enabled_extensions_.end(), enabledNames.begin(), enabledNames.end());
   }
   return supported;
 }
 
-void Instance::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& create_info) {
+void Instance::populateDebugMessengerCreateInfo(vk::DebugUtilsMessengerCreateInfoEXT& create_info) {
   create_info = {
-      .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
-      .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-                         VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-                         VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
-      .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-                     VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                     VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
+      .messageSeverity = vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
+                         vk::DebugUtilsMessageSeverityFlagBitsEXT::eError,
+      .messageType = vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
+                     vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation |
+                     vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance,
       .pfnUserCallback = debugMessengerCallback,
   };
 }
 
 void Instance::getAllPhysicalDevices() {
-  uint32_t deviceCount = 0;
-  vkEnumeratePhysicalDevices(vk_instance_, &deviceCount, nullptr);
-  if (deviceCount == 0) {
+  std::vector<vk::PhysicalDevice> gpus = vk_instance_.enumeratePhysicalDevices();
+  if (gpus.empty()) {
     throw std::runtime_error("failed to find GPUs with Vulkan support!");
   }
-  std::vector<VkPhysicalDevice> devices(deviceCount);
-  vkEnumeratePhysicalDevices(vk_instance_, &deviceCount, devices.data());
-
-  for (auto& each : devices) {
+  for (auto& each : gpus) {
     physical_devices_.push_back(std::make_unique<PhysicalDevice>(*this, each));
   }
 }
@@ -189,7 +146,7 @@ int Instance::rateDeviceSuitability(const PhysicalDevice& device) {
   const auto& device_properties = device.getProperties();
   const auto& device_features = device.getFeatures();
   int score = 0;
-  if (device_properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
+  if (device_properties.deviceType == vk::PhysicalDeviceType::eDiscreteGpu) {
     score += 1000;
   }
   // Maximum possible size of textures affects graphics quality

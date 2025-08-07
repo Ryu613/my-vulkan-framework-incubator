@@ -8,27 +8,27 @@ class PhysicalDevice final {
  public:
   NO_COPY_MOVE(PhysicalDevice);
 
-  explicit PhysicalDevice(const Instance& instance, VkPhysicalDevice vk_physical_device);
+  explicit PhysicalDevice(const Instance& instance, vk::PhysicalDevice vk_physical_device);
 
  public:
   inline const Instance& getInstance() const {
     return instance_;
   }
-  inline const VkPhysicalDevice getVkPhysicalDevice() const {
+  inline const vk::PhysicalDevice getVkPhysicalDevice() const {
     return vk_physical_device_;
   }
   inline const std::vector<const char*>& getEnabledExtensions() const {
     return enabled_device_extensions_;
   }
-  inline const std::vector<VkQueueFamilyProperties>& getQueueFamilies() const {
+  inline const std::vector<vk::QueueFamilyProperties>& getQueueFamilies() const {
     return queue_family_properties_;
   }
 
-  inline const VkPhysicalDeviceProperties& getProperties() const {
+  inline const vk::PhysicalDeviceProperties& getProperties() const {
     return properties_;
   }
 
-  inline const VkPhysicalDeviceFeatures& getFeatures() const {
+  inline const vk::PhysicalDeviceFeatures& getFeatures() const {
     return features_;
   }
 
@@ -38,12 +38,12 @@ class PhysicalDevice final {
 
  private:
   const Instance& instance_;
-  VkPhysicalDevice vk_physical_device_ = VK_NULL_HANDLE;
-  VkPhysicalDeviceFeatures features_{};
-  std::vector<VkExtensionProperties> device_extensions_;
+  vk::PhysicalDevice vk_physical_device_;
+  vk::PhysicalDeviceFeatures features_;
+  std::vector<vk::ExtensionProperties> device_extensions_;
   std::vector<const char*> enabled_device_extensions_;
-  VkPhysicalDeviceProperties properties_{};
-  VkPhysicalDeviceMemoryProperties memory_properties_{};
-  std::vector<VkQueueFamilyProperties> queue_family_properties_;
+  vk::PhysicalDeviceProperties properties_;
+  vk::PhysicalDeviceMemoryProperties memory_properties_;
+  std::vector<vk::QueueFamilyProperties> queue_family_properties_;
 };
 }  // namespace vk1

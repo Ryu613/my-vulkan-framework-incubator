@@ -56,7 +56,7 @@ class Context final {
   std::unique_ptr<Instance> instance_;
   std::unique_ptr<LogicalDevice> logical_device_;
   // std::unique_ptr<RenderContext> render_context_;
-  VkSurfaceKHR surface_;
+  vk::SurfaceKHR surface_;
   VmaAllocator allocator_ = nullptr;
   std::unique_ptr<RenderPass> render_pass_;
   std::unique_ptr<Swapchain> swapchain_;
