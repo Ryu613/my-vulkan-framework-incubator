@@ -50,7 +50,7 @@ inline const std::map<uint32_t, SwapchainProps> DEFAULT_SWAPCHAIN_PROPS_PRIORITY
 
 // 3: triple bufferring
 // 15: maximum number of renderpasses
-// in-flight: command submitted but gpu may(or not yet) excuted
+// in-flight: command submitted but gpu may(or not yet) executed
 // credit: filament
 constexpr static int MAX_IN_FLIGHT_COMMAND_BUFFERS = 3 * 15;
 }  // namespace vk1
