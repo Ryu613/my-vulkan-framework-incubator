@@ -28,4 +28,18 @@ bool PhysicalDevice::supportExtensions(const OptionalExtensions& required_extens
   }
   return supported;
 }
+
+  vk::Format PhysicalDevice::findSupportedFormat(const std::vector<vk::Format>& candidates,
+                               vk::ImageTiling tiling,
+                               vk::FormatFeatureFlags features) const {
+    for (vk::Format format : candidates) {
+      vk::FormatProperties props = vk_physical_device_.getFormatProperties(format);
+      if (tiling == vk::ImageTiling::eLinear && (props.linearTilingFeatures & features) == features) {
+        return format;
+      } else if (tiling == vk::ImageTiling::eOptimal && (props.optimalTilingFeatures & features) == features) {
+        return format;
+      }
+    }
+    throw std::runtime_error("failed to find supported format!");
+  }
 }  // namespace vk1

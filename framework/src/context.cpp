@@ -4,6 +4,7 @@
 #include "vk1/core/context.hpp"
 
 #include "vk1/core/buffer.hpp"
+#include "vk1/rendering/render_context.hpp"
 #include "vk1/support/gltf_loader.hpp"
 #include "vk1/support/model.hpp"
 #include "ze/utils/filesystem.hpp"
@@ -51,8 +52,11 @@ void Context::initVulkan() {
   // create logical device
   logical_device_ = std::make_unique<LogicalDevice>(suitablePhysicalDevice, surface_);
   VULKAN_HPP_DEFAULT_DISPATCHER.init(logical_device_->getVkDevice());
+  // vma allocator
   createMemoryAllocator();
-  createSwapchain();
+  // create render context
+  render_context_ = std::make_unique<RenderContext>(*logical_device_, surface_, config_.window);
+  // createSwapchain();
   createRenderPass();
   createCommandPoolAndBuffers();
   createGraphicsPipeline();
@@ -118,29 +122,25 @@ void Context::createMemoryAllocator() {
   vmaCreateAllocator(&allocInfo, &allocator_);
 }
 
-// void Context::createRenderContext() {
-//   render_context_ = std::make_unique<RenderContext>(*logical_device_);
+// void Context::createSwapchain() {
+//   auto [width, height] = config_.window->getExtent();
+//   VkExtent2D extent{width, height};
+//   swapchain_ = std::make_unique<Swapchain>(*logical_device_, surface_, extent);
 // }
-
-void Context::createSwapchain() {
-  auto [width, height] = config_.window->getExtent();
-  VkExtent2D extent{width, height};
-  swapchain_ = std::make_unique<Swapchain>(*logical_device_, surface_, extent);
-}
-void Context::createRenderPass() {
-  VkFormat format = swapchain_->getSurfaceFormat();
-  render_pass_ = std::make_unique<RenderPass>(*logical_device_, format);
-}
-void Context::createGraphicsPipeline() {
-  Pipeline::PipelineConfig pipeConfig{
-      .pipelineType = Pipeline::PipelineType::GraphicsPipeline,
-      .vertexShaderPath = "Shaders/vert.spv",
-      .fragmentShaderPath = "Shaders/frag.spv",
-      .renderPass = render_pass_->getVkRenderPass(),
-      .viewportExtent = swapchain_->getImageExtent(),
-  };
-  logical_device_->createPipeline(pipeConfig);
-}
+// void Context::createRenderPass() {
+//   VkFormat format = swapchain_->getSurfaceFormat();
+//   render_pass_ = std::make_unique<RenderPass>(*logical_device_, format);
+// }
+// void Context::createGraphicsPipeline() {
+//   Pipeline::PipelineConfig pipeConfig{
+//       .pipelineType = Pipeline::PipelineType::GraphicsPipeline,
+//       .vertexShaderPath = "Shaders/vert.spv",
+//       .fragmentShaderPath = "Shaders/frag.spv",
+//       .renderPass = render_pass_->getVkRenderPass(),
+//       .viewportExtent = swapchain_->getImageExtent(),
+//   };
+//   logical_device_->createPipeline(pipeConfig);
+// }
 
 void Context::createCommandPoolAndBuffers() {
   uint32_t graphicsQueueFamilyIndex =

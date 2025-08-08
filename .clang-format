@@ -4,3 +4,4 @@ ColumnLimit: 110
 BinPackParameters: OnePerLine
 BinPackArguments: false
 AllowShortFunctionsOnASingleLine: Empty
+SortIncludes: Never

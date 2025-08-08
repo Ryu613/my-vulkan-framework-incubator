@@ -55,9 +55,9 @@ class Context final {
   ContextConfig config_;
   std::unique_ptr<Instance> instance_;
   std::unique_ptr<LogicalDevice> logical_device_;
-  // std::unique_ptr<RenderContext> render_context_;
   vk::SurfaceKHR surface_;
   VmaAllocator allocator_ = nullptr;
+  std::unique_ptr<RenderContext> render_context_;
   std::unique_ptr<RenderPass> render_pass_;
   std::unique_ptr<Swapchain> swapchain_;
   std::vector<std::unique_ptr<FrameBuffer>> frame_buffers_;
@@ -67,7 +67,7 @@ class Context final {
 
   void createSurface();
   void createMemoryAllocator();
-  void createSwapchain();
+  // void createSwapchain();
   void createRenderPass();
   void createGraphicsPipeline();
   void createCommandPool();

@@ -36,6 +36,10 @@ class PhysicalDevice final {
 
   void createLogicalDevice(std::set<uint32_t> queue_family_indices, bool is_debug);
 
+  vk::Format findSupportedFormat(const std::vector<vk::Format>& candidates,
+                               vk::ImageTiling tiling,
+                               vk::FormatFeatureFlags features) const;
+
  private:
   const Instance& instance_;
   vk::PhysicalDevice vk_physical_device_;

@@ -17,9 +17,9 @@ using OptionalExtensions = std::unordered_map<const char*, bool>;
 using OptionalLayers = OptionalExtensions;
 
 struct SwapchainProps {
-  VkFormat format;
-  VkColorSpaceKHR color_space;
-  VkPresentModeKHR present_mode;
+  vk::Format format;
+  vk::ColorSpaceKHR color_space;
+  vk::PresentModeKHR present_mode;
 };
 
 inline const OptionalLayers DEFAULT_DEBUG_LAYERS = {{"VK_LAYER_KHRONOS_validation", true}};
@@ -36,9 +36,9 @@ inline const std::map<uint32_t, SwapchainProps> DEFAULT_SWAPCHAIN_PROPS_PRIORITY
     {
         1U,
         {
-            VK_FORMAT_R8G8B8A8_SRGB,
-            VK_COLORSPACE_SRGB_NONLINEAR_KHR,
-            VK_PRESENT_MODE_FIFO_KHR,
+            vk::Format::eR8G8B8A8Srgb,
+            vk::ColorSpaceKHR::eSrgbNonlinear,
+            vk::PresentModeKHR::eFifo,
         },
     },
 };

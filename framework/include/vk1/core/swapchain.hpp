@@ -6,24 +6,24 @@
 
 namespace vk1 {
 struct SwapchainSupportDetails {
-  VkSurfaceCapabilitiesKHR capabilities{};
-  std::vector<VkSurfaceFormatKHR> surface_formats;
-  std::vector<VkPresentModeKHR> present_modes;
+  vk::SurfaceCapabilitiesKHR capabilities;
+  std::vector<vk::SurfaceFormatKHR> surface_formats;
+  std::vector<vk::PresentModeKHR> present_modes;
 };
 class Swapchain final {
  public:
   NO_COPY_MOVE(Swapchain);
 
   explicit Swapchain(const LogicalDevice& logical_device,
-                     VkSurfaceKHR surface,
-                     VkExtent2D extent,
-                     VkFormat format = VK_FORMAT_UNDEFINED,
-                     VkColorSpaceKHR color_space = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
-                     VkPresentModeKHR present_mode = VK_PRESENT_MODE_FIFO_KHR);
+                     vk::SurfaceKHR surface,
+                     vk::Extent2D extent,
+                     vk::Format format = vk::Format::eR8G8B8A8Srgb,
+                     vk::ColorSpaceKHR color_space = vk::ColorSpaceKHR::eSrgbNonlinear,
+                     vk::PresentModeKHR present_mode = vk::PresentModeKHR::eFifo);
   ~Swapchain();
 
  public:
-  inline VkFormat getSurfaceFormat() const {
+  inline vk::Format getSurfaceFormat() const {
     return surface_format_;
   }
 
@@ -31,7 +31,11 @@ class Swapchain final {
     return static_cast<uint32_t>(images_.size());
   }
 
-  inline VkExtent2D getImageExtent() const {
+  inline const std::vector<vk::Image>& getImages() const {
+    return images_;
+  }
+
+  inline vk::Extent2D getImageExtent() const {
     return extent_;
   }
 
@@ -50,12 +54,12 @@ class Swapchain final {
 
  private:
   const LogicalDevice& logical_device_;
-  VkSwapchainKHR vk_swapchain_ = VK_NULL_HANDLE;
-  VkExtent2D extent_;
-  VkFormat surface_format_;
-  VkColorSpaceKHR color_space_;
-  VkPresentModeKHR present_mode_;
-  std::vector<VkImage> images_;
+  vk::SwapchainKHR vk_swapchain_ = VK_NULL_HANDLE;
+  vk::Extent2D extent_;
+  vk::Format surface_format_;
+  vk::ColorSpaceKHR color_space_;
+  vk::PresentModeKHR present_mode_;
+  std::vector<vk::Image> images_;
   std::vector<VkImageView> image_views_;
   uint32_t image_index_ = 0;
   VkSemaphore image_available_ = VK_NULL_HANDLE;
@@ -63,12 +67,13 @@ class Swapchain final {
   VkFence acquire_fence_ = VK_NULL_HANDLE;
 
  private:
-  SwapchainSupportDetails querySwapchainSupport(const PhysicalDevice& physical_device, VkSurfaceKHR surface);
-  SwapchainProps chooseSwapchainProperties(VkFormat required_surface_format,
-                                           VkColorSpaceKHR required_color_space,
-                                           VkPresentModeKHR required_present_mode,
+  SwapchainSupportDetails querySwapchainSupport(const PhysicalDevice& physical_device,
+                                                vk::SurfaceKHR surface);
+  SwapchainProps chooseSwapchainProperties(vk::Format required_surface_format,
+                                           vk::ColorSpaceKHR required_color_space,
+                                           vk::PresentModeKHR required_present_mode,
                                            const SwapchainSupportDetails& supported);
-  VkExtent2D chooseExtent(VkExtent2D extent, const VkSurfaceCapabilitiesKHR& capabilities);
+  vk::Extent2D chooseExtent(vk::Extent2D extent, const vk::SurfaceCapabilitiesKHR& capabilities);
   void wrapSwapchainImages();
   void createSyncObjects();
 };
