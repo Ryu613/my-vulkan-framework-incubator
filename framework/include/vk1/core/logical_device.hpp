@@ -33,7 +33,7 @@ class LogicalDevice final {
  public:
   NO_COPY_MOVE(LogicalDevice);
 
-  explicit LogicalDevice(const PhysicalDevice& physical_device, vk::SurfaceKHR surface);
+  LogicalDevice(const PhysicalDevice& physical_device, vk::SurfaceKHR surface);
 
   ~LogicalDevice();
 
@@ -42,7 +42,7 @@ class LogicalDevice final {
     return physical_device_;
   }
 
-  inline const vk::Device& getVkDevice() const {
+  inline const vk::Device getVkDevice() const {
     return vk_device_;
   }
 

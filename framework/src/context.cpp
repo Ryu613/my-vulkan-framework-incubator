@@ -3,6 +3,7 @@
 #define VMA_DYNAMIC_VULKAN_FUNCTIONS 1
 #include "vk1/core/context.hpp"
 
+#include "vk1/core/allocation.hpp"
 #include "vk1/core/buffer.hpp"
 #include "vk1/rendering/render_context.hpp"
 #include "vk1/support/gltf_loader.hpp"
@@ -117,10 +118,14 @@ void Context::createMemoryAllocator() {
   };
 
   const VmaAllocatorCreateInfo allocInfo = {
-      .pVulkanFunctions = &vulkanFunctions,
-  };
-  vmaCreateAllocator(&allocInfo, &allocator_);
-}
+    .pVulkanFunctions = &vulkanFunctions,
+    .physicalDevice =
+        static_cast<VkPhysicalDevice>(logical_device_->getPhysicalDevice().getVkPhysicalDevice()),
+    .device = static_cast<VkDevice>(logical_device_->getVkDevice()),
+    .instance = static_cast<VkInstance>(instance_->getVkInstance());
+};
+allocator::init(allocInfo);
+}  // namespace vk1
 
 // void Context::createSwapchain() {
 //   auto [width, height] = config_.window->getExtent();

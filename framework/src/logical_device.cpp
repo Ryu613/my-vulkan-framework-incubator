@@ -39,12 +39,9 @@ LogicalDevice::LogicalDevice(const PhysicalDevice& physical_device, vk::SurfaceK
 }
 
 LogicalDevice::~LogicalDevice() {
-  for (auto fence : fences_) {
-    vkDestroyFence(vk_device_, fence, nullptr);
-  }
-  pipeline_.reset();
-  vkDestroyCommandPool(vk_device_, command_pool_, nullptr);
-  vkDestroyDevice(vk_device_, nullptr);
+  command_pool_.reset();
+  fence_pool_.reset();
+  vk_device_.destroy();
 }
 
 QueueFamilyInfo LogicalDevice::findQueueFamilyIndex(const PhysicalDevice& physical_device,
