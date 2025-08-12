@@ -12,12 +12,13 @@ class Image final : public Allocation<vk::Image> {
     vk::Image image;
     vk::Extent3D extent = {0, 0, 1};
     uint32_t mipLevels = 0;
-    VkSampleCountFlagBits numSamples = vk::SampleCountFlagBits::e1;
+    vk::SampleCountFlagBits numSamples = vk::SampleCountFlagBits::e1;
     vk::ImageType imageType = vk::ImageType::e2D;
     vk::Format format;
     vk::ImageTiling tiling = vk::ImageTiling::eOptimal;
     vk::ImageUsageFlags usageFlags;
     vk::MemoryPropertyFlags memoryPropertyFlags;
+    VmaMemoryUsage memoryUsage = VMA_MEMORY_USAGE_AUTO;
   };
 
  public:
@@ -26,6 +27,11 @@ class Image final : public Allocation<vk::Image> {
   Image(const LogicalDevice& device, Image::Config config);
 
   ~Image();
+
+ public:
+  inline Image::Config getConfig() const {
+    return config_;
+  };
 
  private:
   Image::Config config_;

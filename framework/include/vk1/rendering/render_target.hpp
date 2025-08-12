@@ -9,7 +9,7 @@ class RenderTarget {
  public:
   NO_COPY_MOVE(RenderTarget);
 
-  RenderTarget(const LogicalDevice& device);
+  RenderTarget(const LogicalDevice& device, std::vector<Image>&& render_images);
 
   ~RenderTarget();
 
