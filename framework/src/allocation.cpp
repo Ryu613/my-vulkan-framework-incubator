@@ -9,7 +9,7 @@ VmaAllocator& get() {
 void init(const VmaAllocatorCreateInfo& create_info) {
   auto& allocator = get();
   if (allocator == VK_NULL_HANDLE) {
-    vmaCreateAllocator(&cerate_info, &allocator);
+    vmaCreateAllocator(&create_info, &allocator);
   }
 }
 void destroy() {
