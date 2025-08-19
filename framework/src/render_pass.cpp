@@ -1,118 +1,113 @@
 #include "vk1/core/render_pass.hpp"
 
 namespace vk1 {
-RenderPass::RenderPass(const LogicalDevice& logical_device, VkFormat format)
-    : logical_device_(logical_device) {
-  VkAttachmentDescription depthAttachment{
-      .format = findDepthFormat(),
-      .samples = VK_SAMPLE_COUNT_1_BIT,
-      .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
-      .storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-      .stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-      .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-      .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-      .finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+RenderPass::RenderPass(const LogicalDevice& logical_device, vk::Format format)
+    : Handle(logical_device, nullptr) {
+  std::array<vk::AttachmentDescription, 2> attachments{
+      // color
+      {
+          .format = format,
+          .samples = vk::SampleCountFlagBits::e1,
+          .loadOp = vk::AttachmentLoadOp::eClear,
+          .storeOp = vk::AttachmentStoreOp::eDontCare,
+          .stencilLoadOp = vk::AttachmentLoadOp::eDontCare,
+          .stencilStoreOp = vk::AttachmentStoreOp::eDontCare,
+          .initialLayout = vk::ImageLayout::eUndefined,
+          .finalLayout = vk::ImageLayout::ePresentSrcKHR,
+      },
+      // depth
+      {
+          .format = findDepthFormat(),
+          .samples = vk::SampleCountFlagBits::e1,
+          .loadOp = vk::AttachmentLoadOp::eClear,
+          .storeOp = vk::AttachmentStoreOp::eDontCare,
+          .stencilLoadOp = vk::AttachmentLoadOp::eClear,
+          .stencilStoreOp = vk::AttachmentStoreOp::eDontCare,
+          .initialLayout = vk::ImageLayout::eUndefined,
+          .finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal,
+      },
   };
 
-  VkAttachmentReference depthAttachmentRef{
-      .attachment = 1,
-      .layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-  };
+  vk::AttachmentReference colorRef{0, vk::ImageLayout::eColorAttachmentOptimal};
+  vk::AttachmentReference depthRef{1, vk::ImageLayout::eDepthStencilAttachmentOptimal};
 
-  VkAttachmentDescription colorAttachment{
-      .format = format,
-      .samples = VK_SAMPLE_COUNT_1_BIT,
-      .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
-      .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
-      .stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-      .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-      .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-      .finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-  };
-
-  VkAttachmentReference colorAttachmentRef{
-      .attachment = 0,
-      .layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-  };
-
-  VkAttachmentDescription colorAttachmentResolve{
-      .format = format,
-      .samples = VK_SAMPLE_COUNT_1_BIT,
-      .loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-      .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
-      .stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-      .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-      .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-      .finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-  };
-
-  VkAttachmentReference colorAttachmentResolveRef{
-      .attachment = 2,
-      .layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-  };
-
-  VkSubpassDescription subpass{
-      .pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
+  vk::SubpassDescription subpassDescrption{
+      .pipelineBindPoint = vk::PipelineBindPoint::eGraphics,
       .colorAttachmentCount = 1,
-      .pColorAttachments = &colorAttachmentRef,
-      .pResolveAttachments = &colorAttachmentResolveRef,
-      .pDepthStencilAttachment = &depthAttachmentRef,
+      .pColorAttachments = &colorRef,
+      .pDepthStencilAttachment = &depthRef,
   };
 
-  std::array<VkAttachmentDescription, 3> attachments = {
-      colorAttachment,
-      depthAttachment,
-      colorAttachmentResolve,
+  std::array<vk::SubpassDependency, 2> dependencies{
+      {
+          .srcSubPass = VK_SUBPASS_EXTERNAL,
+          .dstSubpass = 0,
+          .srcStageMask = vk::PipelineStageFlagBits::eBottomOfPipe,
+          .dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput |
+                          vk::PipelineStageFlagBits::eEarlyFragmentTests |
+                          vk::PipelineStageFlagBits::eLateFragmentTests,
+          .srcAccessMask = vk::AccessFlagBits::eColorAttachmentRead |
+                           vk::AccessFlagBits::eColorAttachmentWrite |
+                           vk::AccessFlagBits::eDepthStencilAttachmentRead |
+                           vk::AccessFlagBits::eDepthStencilAttachmentWrite,
+          .dstAccessMask = vk::AccessFlagBits::eColorAttachmentRead |
+                           vk::AccessFlagBits::eColorAttachmentWrite |
+                           vk::AccessFlagBits::eDepthStencilAttachmentRead |
+                           vk::AccessFlagBits::eDepthStencilAttachmentWrite,
+          .dependencyFlags = vk::DependencyFlagBits::eByRegion,
+      },
+      {
+          .srcSubpass = 0,
+          .dstSubpass = VK_SUBPASS_EXTERNAL,
+          .srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput |
+                          vk::PipelineStageFlagBits::eEarlyFragmentTests |
+                          vk::PipelineStageFlagBits::eLateFragmentTests,
+          .dstStageMask = vk::PipelineStageFlagBits::eBottomOfPipe,
+          .srcAccessMask = vk::AccessFlagBits::eColorAttachmentRead |
+                           vk::AccessFlagBits::eColorAttachmentWrite |
+                           vk::AccessFlagBits::eDepthStencilAttachmentRead |
+                           vk::AccessFlagBits::eDepthStencilAttachmentWrite,
+          .dstAccessMask = vk::AccessFlagBits::eMemoryRead,
+          .dependencyFlags = vk::DependencyFlagBits::eByRegion,
+      },
   };
 
-  VkRenderPassCreateInfo renderPassInfo{
-      .sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
+  vk::RenderPassCreateInfo createInfo{
       .attachmentCount = static_cast<uint32_t>(attachments.size()),
       .pAttachments = attachments.data(),
       .subpassCount = 1,
-      .pSubpasses = &subpass,
+      .pSubpasses = &subpassDescrption,
+      .dependencyCount = static_cast<uint32_t>(dependencies.size()),
+      .pDependencies = dependencies.data(),
   };
-
-  VkSubpassDependency dependency{
-      .srcSubpass = VK_SUBPASS_EXTERNAL,
-      .dstSubpass = 0,
-      .srcStageMask =
-          VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
-      .dstStageMask =
-          VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
-      .srcAccessMask = 0,
-      .dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-  };
-
-  renderPassInfo.dependencyCount = 1;
-  renderPassInfo.pDependencies = &dependency;
-
-  if (vkCreateRenderPass(logical_device_.getVkDevice(), &renderPassInfo, nullptr, &vk_render_pass_) !=
-      VK_SUCCESS) {
-    throw std::runtime_error("failed to create render pass!");
-  }
+  auto renderPass = getLogicalDevice().getVkDevice().createRenderPass(createInfo);
+  setHandle(renderPass);
 }
+
 RenderPass::~RenderPass() {
-  vkDestroyRenderPass(logical_device_.getVkDevice(), vk_render_pass_, nullptr);
+  getLogicalDevice().getVkDevice().destroyRenderPass(getHandle());
 }
 
 VkFormat RenderPass::findDepthFormat() {
   return findSupportedFormat(
-      {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT},
-      VK_IMAGE_TILING_OPTIMAL,
-      VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
+      {
+          vk::Format::eD32Sfloat,
+          vk::Format::eD32SfloatS8Uint,
+          vk::Format::eD24UnormS8Uint,
+      },
+      vk::ImageTiling::eOptimal,
+      vk::FormatFeatureFlagBits::eDepthStencilAttachment);
 }
 
-VkFormat RenderPass::findSupportedFormat(const std::vector<VkFormat>& candidates,
-                                         VkImageTiling tiling,
-                                         VkFormatFeatureFlags features) {
-  for (VkFormat format : candidates) {
-    VkFormatProperties props;
-    vkGetPhysicalDeviceFormatProperties(
-        logical_device_.getPhysicalDevice().getVkPhysicalDevice(), format, &props);
-    if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) {
+VkFormat RenderPass::findSupportedFormat(const std::vector<vk::Format>& candidates,
+                                         vk::ImageTiling tiling,
+                                         vk::FormatFeatureFlags features) {
+  vk::PhysicalDevice phyDevice = logical_device_.getPhysicalDevice().getVkPhysicalDevice();
+  for (vk::Format format : candidates) {
+    vk::FormatProperties props = phyDevice.getFormatProperties(format);
+    if (tiling == vk::ImageTiling::eLinear && (props.linearTilingFeatures & features) == features) {
       return format;
-    } else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) {
+    } else if (tiling == vk::ImageTiling::eOptimal && (props.optimalTilingFeatures & features) == features) {
       return format;
     }
   }

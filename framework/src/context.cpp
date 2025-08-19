@@ -57,10 +57,13 @@ void Context::initVulkan() {
   createMemoryAllocator();
   // create render context
   render_context_ = std::make_unique<RenderContext>(*logical_device_, surface_, config_.window);
-  // createSwapchain();
+
   // Swapchain buffer?
   // synchronization primitives?
-  createRenderPass();
+
+  // create render pass
+  auto format = render_context_->getSwapchain().getSurfaceFormat();
+  render_pass_ = std::make_unique<RenderPass>(*logical_device_, format);
   createGraphicsPipeline();
   // create color & depth resource
   const auto& swapchainFormat = swapchain_->getSurfaceFormat();
@@ -134,7 +137,7 @@ allocator::init(allocInfo);
 //   swapchain_ = std::make_unique<Swapchain>(*logical_device_, surface_, extent);
 // }
 // void Context::createRenderPass() {
-//   VkFormat format = swapchain_->getSurfaceFormat();
+//   auto format = render_context_->getSwapchain().getSurfaceFormat();
 //   render_pass_ = std::make_unique<RenderPass>(*logical_device_, format);
 // }
 // void Context::createGraphicsPipeline() {

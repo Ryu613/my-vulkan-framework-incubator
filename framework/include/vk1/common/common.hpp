@@ -19,6 +19,7 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
+#include <array>
 
 #define MOVABLE_ONLY(CLASS_NAME)                     \
   CLASS_NAME(const CLASS_NAME&) = delete;            \

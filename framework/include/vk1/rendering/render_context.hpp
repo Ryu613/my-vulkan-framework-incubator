@@ -28,6 +28,10 @@ class RenderContext final {
     return frames_;
   }
 
+  inline const Swapchain& getSwapchain() const {
+    return *swapchain_;
+  }
+
  private:
   void prepareFrames();
 
