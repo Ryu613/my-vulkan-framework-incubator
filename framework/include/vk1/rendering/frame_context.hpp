@@ -11,7 +11,7 @@ class FrameContext {
  public:
   NO_COPY_MOVE(FrameContext);
 
-  FrameContext(const LogicalDevice& device, vk::Image swapchain_image);
+  FrameContext(const LogicalDevice& device, std::vector<Image>&& render_images);
 
  private:
   const LogicalDevice& logical_device_;
