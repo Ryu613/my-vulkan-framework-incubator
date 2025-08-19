@@ -1,6 +1,7 @@
 #include "vk1/rendering/frame_context.hpp"
 
 #include "vk1/core/logical_device.hpp"
+#include "vk1/core/image.hpp"
 #include "vk1/rendering/render_target.hpp"
 
 namespace vk1 {

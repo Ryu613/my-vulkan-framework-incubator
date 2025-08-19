@@ -21,6 +21,7 @@ class Image final : public Allocation<vk::Image> {
   };
 
  public:
+  // TODO move ctor
   MOVABLE_ONLY(Image);
 
   Image(const LogicalDevice& device, Image::Config config);

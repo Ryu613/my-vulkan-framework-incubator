@@ -24,8 +24,8 @@ RenderContext::RenderContext(const LogicalDevice& device, const Window& window, 
 
 void RenderContext::prepareFrames() {
   // pepare per-frame data
-  for (auto& each : swapchain_->getImages()) {
-    frames_.emplace_back(std::make_unique<FrameContext>(logical_device_, each));
+  for (auto& rawImage : swapchain_->getImages()) {
+    frames_.emplace_back(std::make_unique<FrameContext>(logical_device_, rawImage));
   }
 }
 }  // namespace vk1
