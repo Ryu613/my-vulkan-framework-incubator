@@ -62,9 +62,9 @@ class LogicalDevice final {
     return present_queue_;
   }
 
-  void createCommandPoolAndBuffers(uint32_t queue_family_index,
-                                   uint32_t command_buffer_count,
-                                   uint32_t in_flight_count = 2);
+  // void createCommandPoolAndBuffers(uint32_t queue_family_index,
+  //                                  uint32_t command_buffer_count,
+  //                                  uint32_t in_flight_count = 2);
 
   void createPipeline(const Pipeline::PipelineConfig& pipeline_config);
 

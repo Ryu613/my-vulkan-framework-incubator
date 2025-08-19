@@ -58,8 +58,9 @@ void Context::initVulkan() {
   // create render context
   render_context_ = std::make_unique<RenderContext>(*logical_device_, surface_, config_.window);
   // createSwapchain();
+  // Swapchain buffer?
+  // synchronization primitives?
   createRenderPass();
-  createCommandPoolAndBuffers();
   createGraphicsPipeline();
   // create color & depth resource
   const auto& swapchainFormat = swapchain_->getSurfaceFormat();
@@ -147,11 +148,12 @@ allocator::init(allocInfo);
 //   logical_device_->createPipeline(pipeConfig);
 // }
 
-void Context::createCommandPoolAndBuffers() {
-  uint32_t graphicsQueueFamilyIndex =
-      logical_device_->getQueueFamilyInfo().graphics_queue_family_index.value();
-  logical_device_->createCommandPoolAndBuffers(graphicsQueueFamilyIndex, swapchain_->getImageCount());
-}
+// void Context::createCommandPoolAndBuffers() {
+//   uint32_t graphicsQueueFamilyIndex =
+//       logical_device_->getQueueFamilyInfo().graphics_queue_family_index.value();
+//   logical_device_->createCommandPoolAndBuffers(graphicsQueueFamilyIndex, swapchain_->getImageCount());
+// }
+
 void Context::drawFrame() {
   uint32_t imageIndex = swapchain_->acquireNextImage();
   VkCommandBuffer cmdBuffer = logical_device_->getCommandBufferToBegin();

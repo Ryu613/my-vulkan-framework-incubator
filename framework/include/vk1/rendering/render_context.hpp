@@ -23,6 +23,11 @@ class RenderContext final {
 
   ~RenderContext();
 
+ public:
+  inline std::vector<std::unique_ptr<FrameContext>>& getRenderFrames() {
+    return frames_;
+  }
+
  private:
   void prepareFrames();
 

@@ -53,8 +53,9 @@ class Context final {
   std::unique_ptr<LogicalDevice> logical_device_;
   vk::SurfaceKHR surface_;
   std::unique_ptr<RenderContext> render_context_;
+  // std::vector<vk::CommandBuffer> cmd_buffers_;
   std::unique_ptr<RenderPass> render_pass_;
-  std::unique_ptr<Swapchain> swapchain_;
+  // std::unique_ptr<Swapchain> swapchain_;
   std::vector<std::unique_ptr<FrameBuffer>> frame_buffers_;
 
  private:
@@ -65,7 +66,7 @@ class Context final {
   // void createSwapchain();
   void createRenderPass();
   void createGraphicsPipeline();
-  void createCommandPool();
+  // void createCommandPool();
   void createTextureImage();
   void createTextureImageView();
   void createTextureSampler();
@@ -75,6 +76,5 @@ class Context final {
   void createUniformBuffers();
   void createDescriptorPool();
   void createDescriptorSets();
-  void createCommandPoolAndBuffers();
 };
 }  // namespace vk1
