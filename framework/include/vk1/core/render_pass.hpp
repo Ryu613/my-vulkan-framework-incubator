@@ -14,9 +14,9 @@ class RenderPass final : public Handle<vk::RenderPass> {
   ~RenderPass();
 
  private:
-  VkFormat findDepthFormat();
-  VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates,
-                               VkImageTiling tiling,
-                               VkFormatFeatureFlags features);
+  vk::Format findDepthFormat();
+  vk::Format findSupportedFormat(const std::vector<vk::Format>& candidates,
+                                 vk::ImageTiling tiling,
+                                 vk::FormatFeatureFlags features);
 };
 }  // namespace vk1

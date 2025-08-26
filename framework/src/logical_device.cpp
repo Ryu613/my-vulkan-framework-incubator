@@ -35,7 +35,7 @@ LogicalDevice::LogicalDevice(const PhysicalDevice& physical_device, vk::SurfaceK
   // create command pool
   command_pool_ =
       std::make_unique<CommandPool>(*this, queue_family_info_.graphics_queue_family_index.value());
-  // create fence pool
+  // TODO: create fence pool
 }
 
 LogicalDevice::~LogicalDevice() {

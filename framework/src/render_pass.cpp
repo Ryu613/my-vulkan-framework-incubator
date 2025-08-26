@@ -88,7 +88,7 @@ RenderPass::~RenderPass() {
   getLogicalDevice().getVkDevice().destroyRenderPass(getHandle());
 }
 
-VkFormat RenderPass::findDepthFormat() {
+vk::Format RenderPass::findDepthFormat() {
   return findSupportedFormat(
       {
           vk::Format::eD32Sfloat,
@@ -99,9 +99,9 @@ VkFormat RenderPass::findDepthFormat() {
       vk::FormatFeatureFlagBits::eDepthStencilAttachment);
 }
 
-VkFormat RenderPass::findSupportedFormat(const std::vector<vk::Format>& candidates,
-                                         vk::ImageTiling tiling,
-                                         vk::FormatFeatureFlags features) {
+vk::Format RenderPass::findSupportedFormat(const std::vector<vk::Format>& candidates,
+                                           vk::ImageTiling tiling,
+                                           vk::FormatFeatureFlags features) {
   vk::PhysicalDevice phyDevice = logical_device_.getPhysicalDevice().getVkPhysicalDevice();
   for (vk::Format format : candidates) {
     vk::FormatProperties props = phyDevice.getFormatProperties(format);

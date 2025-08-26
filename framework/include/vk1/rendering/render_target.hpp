@@ -14,6 +14,11 @@ class RenderTarget {
 
   ~RenderTarget();
 
+ public:
+  inline const std::vector<ImageView>& getImageViews() const {
+    return image_views_;
+  }
+
  private:
   const LogicalDevice& logical_device_;
   std::vector<Image> images_;

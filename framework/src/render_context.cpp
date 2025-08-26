@@ -48,7 +48,7 @@ void RenderContext::prepareFrames() {
     Image colorImage(logical_device_, colorImageConfig);
     Image depthImage(logical_device_, depthImageConfig);
     images.push_back(std::move(colorImage));
-    images.push_back(std::move(colorImage));
+    images.push_back(std::move(depthImage));
     frames_.emplace_back(std::make_unique<FrameContext>(logical_device_, std::move(images)));
   }
 }

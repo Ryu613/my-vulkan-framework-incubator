@@ -8,10 +8,10 @@ class FrameBuffer final {
  public:
   NO_COPY_MOVE(FrameBuffer);
 
-  explicit FrameBuffer(const LogicalDevice& logical_device,
-                       VkRenderPass render_pass,
-                       VkExtent2D extent,
-                       const std::vector<VkImageView>& attachments);
+  FrameBuffer(const LogicalDevice& logical_device,
+              const RenderPass& render_pass,
+              vk::Extent2D extent,
+              const std::vector<vk::ImageView>& attachments);
 
   ~FrameBuffer();
 
@@ -22,6 +22,6 @@ class FrameBuffer final {
 
  private:
   const LogicalDevice& logical_device_;
-  VkFramebuffer vk_frame_buffer_ = VK_NULL_HANDLE;
+  vk::FrameBuffer vk_frame_buffer_;
 };
 }  // namespace vk1

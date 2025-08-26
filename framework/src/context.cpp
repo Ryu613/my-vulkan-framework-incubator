@@ -6,6 +6,8 @@
 #include "vk1/core/allocation.hpp"
 #include "vk1/core/buffer.hpp"
 #include "vk1/rendering/render_context.hpp"
+#include "vk1/rendering/frame_context.hpp"
+#include "vk1/rendering/render_target.hpp"
 #include "vk1/support/gltf_loader.hpp"
 #include "vk1/support/model.hpp"
 #include "ze/utils/filesystem.hpp"
@@ -64,42 +66,21 @@ void Context::initVulkan() {
   // create render pass
   auto format = render_context_->getSwapchain().getSurfaceFormat();
   render_pass_ = std::make_unique<RenderPass>(*logical_device_, format);
-  createGraphicsPipeline();
-  // create color & depth resource
-  const auto& swapchainFormat = swapchain_->getSurfaceFormat();
-  const auto& imageExtent = swapchain_->getImageExtent();
-  auto colorImage = createImage({
-      .width = imageExtent.width,
-      .height = imageExtent.height,
-      .mipLevels = 1,
-      .format = swapchainFormat,
-      .tiling = VK_IMAGE_TILING_OPTIMAL,
-      .usage = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-      .properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-  });
-
-  auto depthImage = createImage({
-      .width = imageExtent.width,
-      .height = imageExtent.height,
-      .mipLevels = 1,
-      .format = VK_FORMAT_D24_UNORM_S8_UINT,
-      .tiling = VK_IMAGE_TILING_OPTIMAL,
-      .usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-      .properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-  });
   // create frame buffers
-  uint32_t imageCount = swapchain_->getImageCount();
-  const auto& imageViews = swapchain_->getImageViews();
-  frame_buffers_.reserve(imageCount);
-  for (uint32_t i = 0; i < imageCount; ++i) {
-    std::vector<VkImageView> attachments;
-    attachments.push_back(colorImage->getVkImageView());
-    attachments.push_back(depthImage->getVkImageView());
-    attachments.push_back(imageViews[i]);
+  frame_buffers_.clear();
+  frame_buffers_.resize(render_context_->getRenderFrames().size());
+  auto imageExtent = render_context_->getSwapchain().getImageExtent();
+  std::array<vk::ImageView, 2> attachments;
+  for (uint32_t i = 0; i < frame_buffers_.size(); ++i) {
+    attachments[0] = render_context_->getRenderFrames()[i]->getRenderTarget().getImageViews()[0];
+    attachments[1] = render_context_->getRenderFrames()[i]->getRenderTarget().getImageViews()[1];
+
     auto frameBuffer = std::make_unique<FrameBuffer>(
         *logical_device_, render_pass_->getVkRenderPass(), imageExtent, attachments);
     frame_buffers_.push_back(std::move(frameBuffer));
   }
+  // create graphics pipeline
+  createGraphicsPipeline();
   // create sampler
   auto sampler = logical_device_->createSampler();
   // load model

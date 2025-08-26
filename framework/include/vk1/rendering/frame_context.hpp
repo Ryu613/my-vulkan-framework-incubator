@@ -13,6 +13,11 @@ class FrameContext {
 
   FrameContext(const LogicalDevice& device, std::vector<Image>&& render_images);
 
+ public:
+  inline const RenderTarget& getRenderTarget() const {
+    return *render_target_;
+  }
+
  private:
   const LogicalDevice& logical_device_;
   FencePool fence_pool_;
