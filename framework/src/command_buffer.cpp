@@ -11,7 +11,8 @@ CommandBuffer::CommandBuffer(const CommandPool& command_pool, vk::CommandBufferL
   allocInfo.level = level;
   allocInfo.commandBufferCount = 1;
 
-  vk_command_buffer_ = command_pool_.getLogicalDevice().getVkDevice().allocateCommandBuffers(allocInfo);
+  vk_command_buffer_ =
+      command_pool_.getLogicalDevice().getVkDevice().allocateCommandBuffers(allocInfo).front();
 }
 
 CommandBuffer::~CommandBuffer() {

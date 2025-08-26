@@ -24,7 +24,7 @@ class StagePool {
 
  private:
   // use for gc to calculate minimum gc time
-  static constexpr uint64_t TIME_BEFORE_EVICTION = MAX_IN_FLIGHT_COMMAND_BUFFERS;
+  static constexpr uint64_t TIME_BEFORE_EVICTION = MAX_COMMAND_BUFFERS;
   VmaAllocator vma_allocator_;
   std::multimap<uint32_t, const Stage*> free_stages_;
   std::unordered_set<const Stage*> used_stages_;

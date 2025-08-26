@@ -31,7 +31,7 @@ struct QueueFamilyInfo {
 
 class LogicalDevice final {
  public:
-  NO_COPY_MOVE(LogicalDevice);
+  MOVABLE_ONLY(LogicalDevice);
 
   LogicalDevice(const PhysicalDevice& physical_device, vk::SurfaceKHR surface);
 
@@ -66,7 +66,7 @@ class LogicalDevice final {
   //                                  uint32_t command_buffer_count,
   //                                  uint32_t in_flight_count = 2);
 
-  void createPipeline(const Pipeline::PipelineConfig& pipeline_config);
+  void createPipeline(const Pipeline::Config& pipeline_config);
 
   VkCommandBuffer getCommandBufferToBegin();
 

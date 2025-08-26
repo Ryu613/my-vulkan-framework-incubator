@@ -105,7 +105,7 @@ QueueFamilyInfo LogicalDevice::findQueueFamilyIndex(const PhysicalDevice& physic
 //   }
 // }
 
-void LogicalDevice::createPipeline(const Pipeline::PipelineConfig& pipeline_config) {
+void LogicalDevice::createPipeline(const Pipeline::Config& pipeline_config) {
   pipeline_ = std::make_unique<Pipeline>(*this, pipeline_config);
 }
 

@@ -14,6 +14,6 @@ class Sampler final {
 
  private:
   const LogicalDevice& logical_device_;
-  VkSampler vk_sampler_{VK_NULL_HANDLE};
+  vk::Sampler vk_sampler_;
 };
 }  // namespace vk1

@@ -80,7 +80,14 @@ void Context::initVulkan() {
     frame_buffers_.push_back(std::move(frameBuffer));
   }
   // create graphics pipeline
-  createGraphicsPipeline();
+  Pipeline::PipelineConfig pipeConfig{
+      .pipelineType = Pipeline::PipelineType::GraphicsPipeline,
+      .vertexShaderPath = "Shaders/vert.spv",
+      .fragmentShaderPath = "Shaders/frag.spv",
+      .renderPass = render_pass_->getVkRenderPass(),
+      .viewportExtent = swapchain_->getImageExtent(),
+  };
+  logical_device_->createPipeline(pipeConfig);
   // create sampler
   auto sampler = logical_device_->createSampler();
   // load model
@@ -120,16 +127,6 @@ allocator::init(allocInfo);
 // void Context::createRenderPass() {
 //   auto format = render_context_->getSwapchain().getSurfaceFormat();
 //   render_pass_ = std::make_unique<RenderPass>(*logical_device_, format);
-// }
-// void Context::createGraphicsPipeline() {
-//   Pipeline::PipelineConfig pipeConfig{
-//       .pipelineType = Pipeline::PipelineType::GraphicsPipeline,
-//       .vertexShaderPath = "Shaders/vert.spv",
-//       .fragmentShaderPath = "Shaders/frag.spv",
-//       .renderPass = render_pass_->getVkRenderPass(),
-//       .viewportExtent = swapchain_->getImageExtent(),
-//   };
-//   logical_device_->createPipeline(pipeConfig);
 // }
 
 // void Context::createCommandPoolAndBuffers() {
@@ -181,7 +178,4 @@ void Context::drawFrame() {
   swapchain_->present(logical_device_->getPresentQueue());
 }
 
-std::shared_ptr<Image> Context::createImage(const ImageConfig& config) const {
-  return std::make_shared<Image>(*this, config);
-}
 }  // namespace vk1

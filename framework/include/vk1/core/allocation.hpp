@@ -55,7 +55,7 @@ class Allocation : public Handle<T> {
  protected:
   template <typename... Args>
   Allocation(const VmaAllocationCreateInfo& alloc_create_info, Args&&... args)
-      : Handle(std::forward<Args>(args)...), alloc_create_info_(alloc_create_info) {}
+      : Handle{std::forward<Args>(args)...}, alloc_create_info_(alloc_create_info) {}
 
  protected:
   /**

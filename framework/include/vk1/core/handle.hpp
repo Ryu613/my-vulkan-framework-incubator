@@ -1,9 +1,9 @@
 #pragma once
 
 #include "vk1/core/common.hpp"
+#include "vk1/core/logical_device.hpp"
 
 namespace vk1 {
-class LogicalDevice;
 // wrapping vulkan object handle and device accessor, ensure resource realease correctly
 template <typename T>
 class Handle {
@@ -15,7 +15,7 @@ class Handle {
   Handle(Handle&& other) noexcept;
   Handle& operator=(Handle&& other) noexcept;
   // constructor
-  Handle(const LogicalDevice& device, T t);
+  Handle(LogicalDevice* device, T t);
   virtual ~Handle() = default;
 
  public:
@@ -23,7 +23,7 @@ class Handle {
     return handle_;
   }
   inline const LogicalDevice& getLogicalDevice() const {
-    return device_;
+    return *device_;
   }
 
   inline void setHandle(T t) {
@@ -31,21 +31,21 @@ class Handle {
   }
 
  private:
-  const LogicalDevice& device_;
+  LogicalDevice* device_{nullptr};
   T handle_{nullptr};
 };
 
 template <typename T>
-inline Handle<T>::Handle(const LogicalDevice& device, T t) : device_(device), handle_(T) {}
+inline Handle<T>::Handle(LogicalDevice* device, T t) : device_(device), handle_(t) {}
 
 template <typename T>
 inline Handle<T>::Handle(Handle&& other) noexcept
-    : device_(other.device_), handle(std::exchange(other.handle, {})) {}
+    : device_(other.device_), handle_(std::exchange(other.handle_, {})) {}
 
 template <typename T>
 inline Handle<T>& Handle<T>::operator=(Handle&& other) noexcept {
-  device_ = other.device_;
-  handle = std::exchange(other.handle, {});
+  device_ = std::exchange(other.device_, {});
+  handle_ = std::exchange(other.handle_, {});
   return *this;
 }
 

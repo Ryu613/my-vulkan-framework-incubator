@@ -7,6 +7,7 @@
 namespace vk1 {
 class LogicalDevice;
 class RenderTarget;
+class Image;
 class FrameContext {
  public:
   NO_COPY_MOVE(FrameContext);

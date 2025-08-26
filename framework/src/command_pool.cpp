@@ -6,10 +6,8 @@
 namespace vk1 {
 CommandPool::CommandPool(const LogicalDevice& device, uint32_t queue_family_index) : logical_device_(device) {
   // create command pool
-  vk::CommandPoolCreateInfo poolInfo{
-      .flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
-      .queueFamilyIndex = queue_family_index,
-  };
+  vk::CommandPoolCreateFlags flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
+  vk::CommandPoolCreateInfo poolInfo{.flags = flags, .queueFamilyIndex = queue_family_index};
   vk_command_pool_ = logical_device_.getVkDevice().createCommandPool(poolInfo);
   // create command buffers
   for (size_t i = 0; i < CAPACITY; ++i) {
