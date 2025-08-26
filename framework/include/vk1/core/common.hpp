@@ -8,8 +8,10 @@
 #endif
 #endif
 
-#define VK_NO_PROTOTYPES
 #include "glm/glm.hpp"
+#define VK_NO_PROTOTYPES
+#define VULKAN_HPP_NO_CONSTRUCTORS
+#define VULKAN_HPP_NO_SETTERS
 #include "vulkan/vulkan.hpp"
 
 namespace vk1 {
