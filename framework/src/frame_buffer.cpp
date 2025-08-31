@@ -1,5 +1,7 @@
 #include "vk1/core/frame_buffer.hpp"
 
+#include "vk1/core/render_pass.hpp"
+
 namespace vk1 {
 FrameBuffer::FrameBuffer(const LogicalDevice& logical_device,
                          const RenderPass& render_pass,
@@ -10,8 +12,8 @@ FrameBuffer::FrameBuffer(const LogicalDevice& logical_device,
       .renderPass = render_pass_->getVkRenderPass(),
       .attachmentCount = static_cast<uint32_t>(attachments.size()),
       .pAttachments = attachments.data(),
-      .width = imageExtent.width,
-      .height = imageExtent.height,
+      .width = extent.width,
+      .height = extent.height,
       .layers = 1,
   };
   vk_frame_buffer_ = logical_device_.getVkDevice().createFramebuffer(frameBufferCreateInfo);

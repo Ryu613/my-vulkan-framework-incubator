@@ -11,8 +11,7 @@ class RenderContext final {
  public:
   struct Config {
     vk::SurfaceKHR surface;
-    vk::SurfaceFormatKHR surface_format = vk::Format::eR8G8B8A8Srgb;
-    vk::ColorSpaceKHR color_space = vk::ColorSpaceKHR::eSrgbNonlinear;
+    vk::SurfaceFormatKHR surface_format = {vk::Format::eR8G8B8A8Srgb, vk::ColorSpaceKHR::eSrgbNonlinear};
     vk::PresentModeKHR present_mode = vk::PresentModeKHR::eFifo;
   };
 

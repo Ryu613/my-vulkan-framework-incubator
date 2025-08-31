@@ -4,6 +4,7 @@
 #include "vk1/core/logical_device.hpp"
 
 namespace vk1 {
+class RenderPass;
 class FrameBuffer final {
  public:
   NO_COPY_MOVE(FrameBuffer);

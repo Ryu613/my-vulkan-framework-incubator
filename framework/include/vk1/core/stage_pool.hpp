@@ -6,7 +6,7 @@
 namespace vk1 {
 struct Stage {
   VmaAllocation memory{VK_NULL_HANDLE};
-  VkBuffer buffer{VK_NULL_HANDLE};
+  vk::Buffer buffer{VK_NULL_HANDLE};
   uint32_t capacity{0};
   mutable uint64_t last_frame_count{0};
 };

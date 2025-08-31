@@ -2,7 +2,7 @@
 
 namespace vk1 {
 RenderPass::RenderPass(const LogicalDevice& logical_device, vk::Format format)
-    : Handle(logical_device, nullptr) {
+    : Handle{&logical_device, nullptr} {
   std::array<vk::AttachmentDescription, 2> attachments{
       // color
       {

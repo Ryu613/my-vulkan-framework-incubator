@@ -23,5 +23,5 @@ class ImageView {
   const Image& image_;
   vk::ImageView vk_image_view_;
   vk::Format format_;
-}
+};
 }  // namespace vk1

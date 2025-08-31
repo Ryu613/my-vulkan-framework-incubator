@@ -80,7 +80,7 @@ void Context::initVulkan() {
     frame_buffers_.push_back(std::move(frameBuffer));
   }
   // create graphics pipeline
-  Pipeline::PipelineConfig pipeConfig{
+  Pipeline::Config pipeConfig{
       .pipelineType = Pipeline::PipelineType::GraphicsPipeline,
       .vertexShaderPath = "Shaders/vert.spv",
       .fragmentShaderPath = "Shaders/frag.spv",
@@ -95,7 +95,7 @@ void Context::initVulkan() {
   auto model = gltfLoader.loadModel("models/aaaa.gltf");
   // create vertex buffer
   auto vertexBuffer =
-      std::make_unique<Buffer>(allocator_,
+      std::make_unique<Buffer>(allocator::get(),
                                VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                                model->vertices_count_ * sizeof(Vertex));
   model->vertex_buffer_ = std::move(vertexBuffer);
@@ -110,13 +110,13 @@ void Context::createMemoryAllocator() {
   };
 
   const VmaAllocatorCreateInfo allocInfo = {
-    .pVulkanFunctions = &vulkanFunctions,
-    .physicalDevice =
-        static_cast<VkPhysicalDevice>(logical_device_->getPhysicalDevice().getVkPhysicalDevice()),
-    .device = static_cast<VkDevice>(logical_device_->getVkDevice()),
-    .instance = static_cast<VkInstance>(instance_->getVkInstance());
-};
-allocator::init(allocInfo);
+      .pVulkanFunctions = &vulkanFunctions,
+      .physicalDevice =
+          static_cast<VkPhysicalDevice>(logical_device_->getPhysicalDevice().getVkPhysicalDevice()),
+      .device = static_cast<VkDevice>(logical_device_->getVkDevice()),
+      .instance = static_cast<VkInstance>(instance_->getVkInstance()),
+  };
+  allocator::init(allocInfo);
 }  // namespace vk1
 
 // void Context::createSwapchain() {
