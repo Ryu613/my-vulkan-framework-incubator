@@ -58,7 +58,7 @@ class Allocation : public Handle<T> {
  protected:
   template <typename... Args>
   inline Allocation(const VmaAllocationCreateInfo& alloc_create_info, Args&&... args)
-      : Handle<T>{std::forward<Args>(args)...} {
+      : ParentType(std::forward<Args>(args)...) {
     alloc_create_info_.flags = alloc_create_info.flags;
     alloc_create_info_.memoryTypeBits = alloc_create_info.memoryTypeBits;
     alloc_create_info_.pool = alloc_create_info.pool;

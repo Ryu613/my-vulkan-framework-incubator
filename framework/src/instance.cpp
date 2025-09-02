@@ -28,10 +28,10 @@ Instance::Instance(std::string name,
   }
   vk::ApplicationInfo appInfo{
       .pApplicationName = name_.c_str(),
-      .pEngineName = "No Engine",
-      .apiVersion = VK_API_VERSION_1_3,
       .applicationVersion = VK_MAKE_VERSION(1, 0, 0),
+      .pEngineName = "No Engine",
       .engineVersion = VK_MAKE_VERSION(1, 0, 0),
+      .apiVersion = VK_API_VERSION_1_3,
   };
 
   vk::InstanceCreateInfo createInfo{

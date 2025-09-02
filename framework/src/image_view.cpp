@@ -6,7 +6,7 @@
 
 namespace vk1 {
 ImageView::ImageView(const Image& image, vk::ImageViewType view_type, vk::Format format)
-    : image_(image), format_(format) {
+    : Handle(&image.getLogicalDevice(), nullptr), image_(image), format_(format) {
   // create vk image view
   if (format == vk::Format::eUndefined) {
     format_ = image.getConfig().format;
@@ -25,10 +25,10 @@ ImageView::ImageView(const Image& image, vk::ImageViewType view_type, vk::Format
   imageViewCreateInfo.format = format_;
   imageViewCreateInfo.subresourceRange = subresource;
 
-  vk_image_view_ = image.getLogicalDevice().getVkDevice().createImageView(imageViewCreateInfo);
+  setHandle(image.getLogicalDevice().getVkDevice().createImageView(imageViewCreateInfo));
 }
 
 ImageView::~ImageView() {
-  image_.getLogicalDevice().getVkDevice().destroyImageView(vk_image_view_);
+  image_.getLogicalDevice().getVkDevice().destroyImageView(getHandle());
 }
 }  // namespace vk1

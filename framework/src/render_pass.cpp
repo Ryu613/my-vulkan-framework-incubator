@@ -2,31 +2,32 @@
 
 namespace vk1 {
 RenderPass::RenderPass(const LogicalDevice& logical_device, vk::Format format)
-    : Handle{&logical_device, nullptr} {
+    : Handle<vk::RenderPass>(&logical_device, nullptr) {
   std::array<vk::AttachmentDescription, 2> attachments{
       // color
       {
-          .format = format,
-          .samples = vk::SampleCountFlagBits::e1,
-          .loadOp = vk::AttachmentLoadOp::eClear,
-          .storeOp = vk::AttachmentStoreOp::eDontCare,
-          .stencilLoadOp = vk::AttachmentLoadOp::eDontCare,
-          .stencilStoreOp = vk::AttachmentStoreOp::eDontCare,
-          .initialLayout = vk::ImageLayout::eUndefined,
-          .finalLayout = vk::ImageLayout::ePresentSrcKHR,
-      },
-      // depth
-      {
-          .format = findDepthFormat(),
-          .samples = vk::SampleCountFlagBits::e1,
-          .loadOp = vk::AttachmentLoadOp::eClear,
-          .storeOp = vk::AttachmentStoreOp::eDontCare,
-          .stencilLoadOp = vk::AttachmentLoadOp::eClear,
-          .stencilStoreOp = vk::AttachmentStoreOp::eDontCare,
-          .initialLayout = vk::ImageLayout::eUndefined,
-          .finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal,
-      },
-  };
+          {
+              .format = format,
+              .samples = vk::SampleCountFlagBits::e1,
+              .loadOp = vk::AttachmentLoadOp::eClear,
+              .storeOp = vk::AttachmentStoreOp::eDontCare,
+              .stencilLoadOp = vk::AttachmentLoadOp::eDontCare,
+              .stencilStoreOp = vk::AttachmentStoreOp::eDontCare,
+              .initialLayout = vk::ImageLayout::eUndefined,
+              .finalLayout = vk::ImageLayout::ePresentSrcKHR,
+          },
+          // depth
+          {
+              .format = findDepthFormat(),
+              .samples = vk::SampleCountFlagBits::e1,
+              .loadOp = vk::AttachmentLoadOp::eClear,
+              .storeOp = vk::AttachmentStoreOp::eDontCare,
+              .stencilLoadOp = vk::AttachmentLoadOp::eClear,
+              .stencilStoreOp = vk::AttachmentStoreOp::eDontCare,
+              .initialLayout = vk::ImageLayout::eUndefined,
+              .finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal,
+          },
+      }};
 
   vk::AttachmentReference colorRef{0, vk::ImageLayout::eColorAttachmentOptimal};
   vk::AttachmentReference depthRef{1, vk::ImageLayout::eDepthStencilAttachmentOptimal};
@@ -38,9 +39,9 @@ RenderPass::RenderPass(const LogicalDevice& logical_device, vk::Format format)
       .pDepthStencilAttachment = &depthRef,
   };
 
-  std::array<vk::SubpassDependency, 2> dependencies{
+  std::array<vk::SubpassDependency, 2> dependencies{{
       {
-          .srcSubPass = VK_SUBPASS_EXTERNAL,
+          .srcSubPass = vk::SubpassExternal,
           .dstSubpass = 0,
           .srcStageMask = vk::PipelineStageFlagBits::eBottomOfPipe,
           .dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput |
@@ -58,7 +59,7 @@ RenderPass::RenderPass(const LogicalDevice& logical_device, vk::Format format)
       },
       {
           .srcSubpass = 0,
-          .dstSubpass = VK_SUBPASS_EXTERNAL,
+          .dstSubpass = vk::SubpassExternal,
           .srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput |
                           vk::PipelineStageFlagBits::eEarlyFragmentTests |
                           vk::PipelineStageFlagBits::eLateFragmentTests,
@@ -70,7 +71,7 @@ RenderPass::RenderPass(const LogicalDevice& logical_device, vk::Format format)
           .dstAccessMask = vk::AccessFlagBits::eMemoryRead,
           .dependencyFlags = vk::DependencyFlagBits::eByRegion,
       },
-  };
+  }};
 
   vk::RenderPassCreateInfo createInfo{
       .attachmentCount = static_cast<uint32_t>(attachments.size()),

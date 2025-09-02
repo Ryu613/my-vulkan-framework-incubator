@@ -9,7 +9,7 @@ FrameBuffer::FrameBuffer(const LogicalDevice& logical_device,
                          const std::vector<vk::ImageView>& attachments)
     : logical_device_(logical_device) {
   vk::FramebufferCreateInfo frameBufferCreateInfo{
-      .renderPass = render_pass_->getVkRenderPass(),
+      .renderPass = render_pass.getHandle(),
       .attachmentCount = static_cast<uint32_t>(attachments.size()),
       .pAttachments = attachments.data(),
       .width = extent.width,

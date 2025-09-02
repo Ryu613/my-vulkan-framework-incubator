@@ -15,7 +15,7 @@ class Handle {
   Handle(Handle&& other) noexcept;
   Handle& operator=(Handle&& other) noexcept;
   // constructor
-  Handle(LogicalDevice* device, T t);
+  Handle(const LogicalDevice* device, T t);
   virtual ~Handle() = default;
 
  public:
@@ -31,12 +31,12 @@ class Handle {
   }
 
  private:
-  LogicalDevice* device_{nullptr};
+  const LogicalDevice* device_{nullptr};
   T handle_{nullptr};
 };
 
 template <typename T>
-inline Handle<T>::Handle(LogicalDevice* device, T t) : device_(device), handle_(t) {}
+inline Handle<T>::Handle(const LogicalDevice* device, T t) : device_(device), handle_(t) {}
 
 template <typename T>
 inline Handle<T>::Handle(Handle&& other) noexcept

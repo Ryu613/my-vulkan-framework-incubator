@@ -7,12 +7,12 @@
 
 namespace vk1 {
 class Image;
-class ImageView {
+class ImageView : public Handle<vk::ImageView> {
  public:
   struct Config {};
 
  public:
-  NO_COPY_MOVE(ImageView);
+  MOVABLE_ONLY(ImageView);
 
   ImageView(const Image& image, vk::ImageViewType view_type, vk::Format format = vk::Format::eUndefined);
 
@@ -21,7 +21,6 @@ class ImageView {
  public:
  private:
   const Image& image_;
-  vk::ImageView vk_image_view_;
   vk::Format format_;
 };
 }  // namespace vk1

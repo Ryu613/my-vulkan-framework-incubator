@@ -15,8 +15,8 @@ RenderContext::RenderContext(const LogicalDevice& device, const Window& window, 
   swapchain_ = std::make_unique<Swapchain>(logical_device_,
                                            config_.surface,
                                            extent,
-                                           config_.surface_format,
-                                           config_.color_space,
+                                           config_.surface_format.format,
+                                           config_.surface_format.colorSpace,
                                            config_.present_mode);
   // prepare frame context
   prepareFrames();

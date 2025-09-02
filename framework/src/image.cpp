@@ -4,7 +4,7 @@
 #include "vma/vk_mem_alloc.h"
 namespace vk1 {
 Image::Image(const LogicalDevice& device, Image::Config config)
-    : Allocation(buildAllocCreateInfo(config), device, nullptr), config_(config) {
+    : Allocation(buildAllocCreateInfo(config), &device, nullptr), config_(config) {
   if (config_.image) {
     setHandle(config_.image);
     return;

@@ -30,8 +30,12 @@ const Stage* StagePool::acquireStage(uint32_t size) {
   VmaAllocationCreateInfo allocInfo{
       .usage = VMA_MEMORY_USAGE_CPU_ONLY,
   };
-  auto result =
-      vmaCreateBuffer(vma_allocator_, &bufferInfo, &allocInfo, &stage->buffer, &stage->memory, nullptr);
+  auto result = vmaCreateBuffer(vma_allocator_,
+                                &bufferInfo,
+                                &allocInfo,
+                                reinterpret_cast<VkBuffer*>(&stage->buffer),
+                                &stage->memory,
+                                nullptr);
   if (result != VK_SUCCESS) {
     throw std::runtime_error("failed to allocate stage buffer memory!");
   }

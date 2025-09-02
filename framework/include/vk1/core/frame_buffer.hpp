@@ -17,12 +17,12 @@ class FrameBuffer final {
   ~FrameBuffer();
 
  public:
-  inline VkFramebuffer getVkFrameBuffer() const {
+  inline vk::Framebuffer getVkFrameBuffer() const {
     return vk_frame_buffer_;
   }
 
  private:
   const LogicalDevice& logical_device_;
-  vk::Framebuffer k_frame_buffer_;
+  vk::Framebuffer vk_frame_buffer_;
 };
 }  // namespace vk1

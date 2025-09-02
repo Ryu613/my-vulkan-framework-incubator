@@ -1,6 +1,7 @@
 #define VMA_IMPLEMENTATION
 #define VMA_STATIC_VULKAN_FUNCTIONS 0
 #define VMA_DYNAMIC_VULKAN_FUNCTIONS 1
+#define VULKAN_HPP_
 #include "vk1/core/context.hpp"
 
 #include "vk1/core/allocation.hpp"
@@ -23,22 +24,22 @@ Context::Context(const ContextConfig& config) : config_(config) {
 
 Context::~Context() {
   auto device = logical_device_->getVkDevice();
-  vkDeviceWaitIdle(device);
+  device.waitIdle();
   for (auto& frameBuffer : frame_buffers_) {
     frameBuffer.reset();
   }
-  swapchain_.reset();
+  // swapchain_.reset();
   render_pass_.reset();
   logical_device_.reset();
-  vmaDestroyAllocator(allocator_);
+  // vmaDestroyAllocator(allocator_);
   if (surface_ != VK_NULL_HANDLE) {
-    vkDestroySurfaceKHR(instance_->getVkInstance(), surface_, nullptr);
+    instance_->getVkInstance().destroySurfaceKHR(surface_);
   }
   instance_.reset();
 }
 
 void Context::initVulkan() {
-  static vk::DynamicLoader dl;
+  static vk::detail::DynamicLoader dl;
   VULKAN_HPP_DEFAULT_DISPATCHER.init(dl.getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr"));
   // create instance
   instance_ = std::make_unique<Instance>(
@@ -75,8 +76,8 @@ void Context::initVulkan() {
     attachments[0] = render_context_->getRenderFrames()[i]->getRenderTarget().getImageViews()[0];
     attachments[1] = render_context_->getRenderFrames()[i]->getRenderTarget().getImageViews()[1];
 
-    auto frameBuffer = std::make_unique<FrameBuffer>(
-        *logical_device_, render_pass_->getVkRenderPass(), imageExtent, attachments);
+    auto frameBuffer =
+        std::make_unique<FrameBuffer>(*logical_device_, render_pass_->getHandle(), imageExtent, attachments);
     frame_buffers_.push_back(std::move(frameBuffer));
   }
   // create graphics pipeline
@@ -84,7 +85,7 @@ void Context::initVulkan() {
       .pipelineType = Pipeline::Type::GraphicsPipeline,
       .vertexShaderPath = "Shaders/vert.spv",
       .fragmentShaderPath = "Shaders/frag.spv",
-      .renderPass = render_pass_->getVkRenderPass(),
+      .renderPass = render_pass_->getHandle(),
       .viewportExtent = swapchain_->getImageExtent(),
   };
   logical_device_->createPipeline(pipeConfig);
@@ -136,46 +137,46 @@ void Context::createMemoryAllocator() {
 // }
 
 void Context::drawFrame() {
-  uint32_t imageIndex = swapchain_->acquireNextImage();
-  VkCommandBuffer cmdBuffer = logical_device_->getCommandBufferToBegin();
-  // begin render pass
-  auto extent = swapchain_->getImageExtent();
-  const auto& pipeline = logical_device_->getPipeline();
-  VkRenderPassBeginInfo renderPassInfo{};
-  renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-  renderPassInfo.renderPass = render_pass_->getVkRenderPass();
-  renderPassInfo.framebuffer = frame_buffers_[imageIndex]->getVkFrameBuffer();
-  renderPassInfo.renderArea.offset = {0, 0};
-  renderPassInfo.renderArea.extent = extent;
-  VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
-  renderPassInfo.clearValueCount = 1;
-  renderPassInfo.pClearValues = &clearColor;
+  // uint32_t imageIndex = swapchain_->acquireNextImage();
+  // VkCommandBuffer cmdBuffer = logical_device_->getCommandBufferToBegin();
+  // // begin render pass
+  // auto extent = swapchain_->getImageExtent();
+  // const auto& pipeline = logical_device_->getPipeline();
+  // VkRenderPassBeginInfo renderPassInfo{};
+  // renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+  // renderPassInfo.renderPass = render_pass_->getVkRenderPass();
+  // renderPassInfo.framebuffer = frame_buffers_[imageIndex]->getVkFrameBuffer();
+  // renderPassInfo.renderArea.offset = {0, 0};
+  // renderPassInfo.renderArea.extent = extent;
+  // VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
+  // renderPassInfo.clearValueCount = 1;
+  // renderPassInfo.pClearValues = &clearColor;
 
-  vkCmdBeginRenderPass(cmdBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-  vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.getVkPipeline());
+  // vkCmdBeginRenderPass(cmdBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+  // vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.getVkPipeline());
 
-  VkViewport viewport{};
-  viewport.x = 0.0f;
-  viewport.y = 0.0f;
-  viewport.width = static_cast<float>(extent.width);
-  viewport.height = static_cast<float>(extent.height);
-  viewport.minDepth = 0.0f;
-  viewport.maxDepth = 1.0f;
-  vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
+  // VkViewport viewport{};
+  // viewport.x = 0.0f;
+  // viewport.y = 0.0f;
+  // viewport.width = static_cast<float>(extent.width);
+  // viewport.height = static_cast<float>(extent.height);
+  // viewport.minDepth = 0.0f;
+  // viewport.maxDepth = 1.0f;
+  // vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
 
-  VkRect2D scissor{};
-  scissor.offset = {0, 0};
-  scissor.extent = extent;
-  vkCmdSetScissor(cmdBuffer, 0, 1, &scissor);
+  // VkRect2D scissor{};
+  // scissor.offset = {0, 0};
+  // scissor.extent = extent;
+  // vkCmdSetScissor(cmdBuffer, 0, 1, &scissor);
 
-  vkCmdDraw(cmdBuffer, 3, 1, 0, 0);
+  // vkCmdDraw(cmdBuffer, 3, 1, 0, 0);
 
-  vkCmdEndRenderPass(cmdBuffer);
-  logical_device_->endCommandBuffer(cmdBuffer);
-  constexpr VkPipelineStageFlags flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-  const auto submitInfo = swapchain_->createSubmitInfo(cmdBuffer, &flags);
-  logical_device_->submitCommand(cmdBuffer, submitInfo);
-  swapchain_->present(logical_device_->getPresentQueue());
+  // vkCmdEndRenderPass(cmdBuffer);
+  // logical_device_->endCommandBuffer(cmdBuffer);
+  // constexpr VkPipelineStageFlags flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+  // const auto submitInfo = swapchain_->createSubmitInfo(cmdBuffer, &flags);
+  // logical_device_->submitCommand(cmdBuffer, submitInfo);
+  // swapchain_->present(logical_device_->getPresentQueue());
 }
 
 }  // namespace vk1
