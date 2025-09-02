@@ -9,15 +9,17 @@ Image::Image(const LogicalDevice& device, Image::Config config)
     setHandle(config_.image);
     return;
   }
-  vk::ImageCreateInfo createInfo{.format = config_.format,
-                                 .mipLevels = config_.mipLevels,
-                                 .samples = config_.numSamples,
-                                 .extent = config_.extent,
-                                 .imageType = vk::ImageType::e2D,
-                                 .arrayLayers = 1,
-                                 .tiling = vk::ImageTiling::eOptimal,
-                                 .usage = config_.usageFlags,
-                                 .sharingMode = vk::SharingMode::eExclusive};
+  vk::ImageCreateInfo createInfo{
+      .imageType = vk::ImageType::e2D,
+      .format = config_.format,
+      .extent = config_.extent,
+      .mipLevels = config_.mipLevels,
+      .arrayLayers = 1,
+      .samples = config_.numSamples,
+      .tiling = vk::ImageTiling::eOptimal,
+      .usage = config_.usageFlags,
+      .sharingMode = vk::SharingMode::eExclusive,
+  };
   setHandle(createImage(createInfo));
 }
 

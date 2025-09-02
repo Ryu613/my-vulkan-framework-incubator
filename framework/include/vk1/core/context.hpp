@@ -37,15 +37,15 @@ class Context final {
   // void createRenderContext();
   void drawFrame();
 
-  std::shared_ptr<Image> createImage(const ImageConfig& config) const;
+  std::shared_ptr<Image> createImage(const Image::Config& config) const;
 
   inline const LogicalDevice& getLogicalDevice() const {
     return *logical_device_;
   }
 
-  inline const Swapchain& getSwapchain() const {
-    return *swapchain_;
-  }
+  // inline const Swapchain& getSwapchain() const {
+  //   return *swapchain_;
+  // }
 
  private:
   ContextConfig config_;

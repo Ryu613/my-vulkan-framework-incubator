@@ -23,6 +23,6 @@ class FrameBuffer final {
 
  private:
   const LogicalDevice& logical_device_;
-  vk::FrameBuffer vk_frame_buffer_;
+  vk::Framebuffer k_frame_buffer_;
 };
 }  // namespace vk1

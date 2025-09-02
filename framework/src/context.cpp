@@ -81,7 +81,7 @@ void Context::initVulkan() {
   }
   // create graphics pipeline
   Pipeline::Config pipeConfig{
-      .pipelineType = Pipeline::PipelineType::GraphicsPipeline,
+      .pipelineType = Pipeline::Type::GraphicsPipeline,
       .vertexShaderPath = "Shaders/vert.spv",
       .fragmentShaderPath = "Shaders/frag.spv",
       .renderPass = render_pass_->getVkRenderPass(),
